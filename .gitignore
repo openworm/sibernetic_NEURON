@@ -1,0 +1,7 @@
+# Compiled python file
+*.pyc
+
+# NEURON Compiled files
+./x86_64/*.*
+
+
