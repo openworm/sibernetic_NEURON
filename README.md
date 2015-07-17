@@ -7,23 +7,12 @@ Sibernetic-NEURON using python-NEURON interface for interraction with NEURON sim
 Running (Linux/mac)
 ------------------------------
 For runing main.py script you need prepare your enviroment before:
-1. Install ipython documentation [here](http://ipython.org/install.html)
+
+1. Install ipython documentation [here](http://ipython.org/install.html)2. 
 2. Install [NEURON with Python](http://www.davison.webfactional.com/notes/installation-neuron-python/)
-3. Install OpenGL for python. For ubuntu you can run this
-```
-sudo apt-get install python-opengl
-```
-4. Clone repository run this
-```
-git clone https://github.com/openworm/Sibernetic-NEURON.git
-```
-5. Tahn ```cd Sibernetic-NEURON``` and run this
-```
-nrnivmodl
-```
-6. Than you can run application
-```
-python main.py
-```
+3. Install OpenGL for python. For ubuntu you can run this ```sudo apt-get install python-opengl```
+4. Clone repository run this ```git clone https://github.com/openworm/Sibernetic-NEURON.git```
+5. Tahn ```cd Sibernetic-NEURON``` and run this ```nrnivmodl```
+6. Than you can run application ```python main.py```
 
 
