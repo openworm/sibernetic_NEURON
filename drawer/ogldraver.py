@@ -122,7 +122,7 @@ def reshape(width, height):
         width = 1
 
     glViewport(0, 0, width, height)
-    glDepthRangef(-100.0, 100.0)
+    glDepthRangef(-1.0, 1.0)
     '''
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
@@ -141,7 +141,7 @@ def reshape(width, height):
     glTranslatef(cameraTransLag[0], cameraTransLag[1], cameraTransLag[2])
     glRotatef(cameraRotLag[0], 1.0, 0.0, 0.0)
     glRotatef(cameraRotLag[1], 0.0, 1.0, 0.0)
-    glGetFloatv(GL_MODELVIEW_MATRIX, modelView)
+    modelView = glGetFloatv(GL_MODELVIEW_MATRIX)
 
 
 def keyboard(key, x, y):
@@ -176,7 +176,7 @@ def init():
     glClearColor(0.5, 0.5, 0.5, 1.0)                # Серый цвет для первоначальной закраски
     #gluOrtho2D(-4.0, 4.0, -4.0, 4.0)                # Определяем границы рисования по горизонтали и вертикали
     #glOrtho(-10.0, 10.0, -10.0, 10.0, -8.0, 8.0)                # Определяем границы рисования по горизонтали и вертикали
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient) # Определяем текущую модель освещения
+    #glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient) # Определяем текущую модель освещения
     glEnable(GL_LIGHTING)                           # Включаем освещение
     glEnable(GL_LIGHT0)                             # Включаем один источник света
     glLightfv(GL_LIGHT0, GL_POSITION, lightpos)     # Определяем положение источника света
@@ -247,7 +247,7 @@ def mouseMotion(x, y):
     glTranslatef(cameraTransLag[0], cameraTransLag[1], cameraTransLag[2])
     glRotatef(cameraRotLag[0], 1.0, 0.0, 0.0)
     glRotatef(cameraRotLag[1], 0.0, 1.0, 0.0)
-    glGetFloatv(GL_MODELVIEW_MATRIX, modelView)
+    modelView = glGetFloatv(GL_MODELVIEW_MATRIX)
 
 
 def timer(value):

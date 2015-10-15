@@ -7,7 +7,7 @@ from neuron import h
 
 from helper.myneuron import MyNeuron
 
-
+# this 3 names of neurons it's temporary in future we will load all neurons directly from hoc file
 AVM = 'AVM'
 ALML = 'ALML'
 ALMR = 'ALMR'
@@ -21,6 +21,11 @@ paramVec = [v]
 
 
 class NrnSimulator:
+    """
+    NEURON wrapper init and run
+    model described on hoc ito NEURON simulator
+    """
+
     def __init__(self, model_name, tstop=20.0):
         if model_name != "":
             if not (os.path.isfile(model_name)):
