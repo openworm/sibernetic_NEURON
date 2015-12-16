@@ -11,7 +11,7 @@ For runing main.py script you need prepare your enviroment before:
 1. Install ipython documentation [here](http://ipython.org/install.html).
 2. Install [NEURON with Python](http://www.davison.webfactional.com/notes/installation-neuron-python/)
 3. Install OpenGL for python. For ubuntu you can run this ```sudo apt-get install python-opengl```
-4. Install PyQt 4. For ubuntu you can run ```sudo apt-get install sudo apt-get install python-qt4```
+4. Install PyQt 4. For ubuntu you can run ```sudo apt-get install python-qt4```
 4. Clone repository run this ```git clone https://github.com/openworm/Sibernetic-NEURON.git```
 6. Than you can run application ```python main.py```
 
