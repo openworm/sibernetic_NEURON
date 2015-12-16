@@ -16,8 +16,8 @@ def load_model(modelfilename='./model/avm.hoc', tstop=400):
     :param tstop: time of duration of simulation
     """
     global nrn
-    outputfolder = 'x86_64' #TODO make it custom it depends on your platform if now
-    workdir = os.getcwd()
+    #outputfolder = 'x86_64' #TODO make it custom it depends on your platform if now
+    #workdir = os.getcwd()
     path, filename = os.path.split(modelfilename)
     os.chdir(path)
     os.system('nrnivmodl')
