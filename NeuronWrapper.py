@@ -1,11 +1,11 @@
-__author__ = 'Serg Khayrulin'
-
 import sys
 import os.path
 
 from neuron import h
-
 from helper.myneuron import MyNeuron
+
+__author__ = 'Sergey Khayrulin'
+
 
 # this 3 names of neurons it's temporary in future we will load all neurons directly from hoc file
 AVM = 'AVM'
@@ -35,7 +35,14 @@ class NrnSimulator:
             h.init()
             h.tstop = tstop
             self.out_data = {}
-            self.neurons = {AVM: MyNeuron(AVM), ALML: MyNeuron(ALML), ALMR: MyNeuron(ALMR)}
+            self.neuronsnames = []
+            self.neurons = {}
+            self.__find_all_neurons()
+            if len(self.neuronsnames) == 0:
+                raise RuntimeError(u"In File: {0:s} with model no any neurons has been found please check the "
+                                   u"the file".format(model_name))
+            for name in self.neuronsnames:
+                self.neurons[name] = MyNeuron(name)
             # Initialization of segments and data arrays
             for k, val in self.neurons.iteritems():
                 val.init_sections(h, paramVec)
@@ -57,3 +64,13 @@ class NrnSimulator:
         else:
             print 'Simulation is finished'
             sys.exit(0)
+
+    def __find_all_neurons(self):
+        """
+        Serach neurons names from hoc segment name
+        """
+        for h_sec in h.allsec():
+            section_name = h_sec.name()
+            index = section_name.find('_soma')
+            if index != -1:
+                self.neuronsnames.append(section_name[0:index])
