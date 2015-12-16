@@ -18,14 +18,14 @@ def load_model(modelfilename='./model/avm.hoc', tstop=400):
     global nrn
     outputfolder = 'x86_64' #TODO make it custom it depends on your platform if now
     workdir = os.getcwd()
-    path = os.path.split(modelfilename)[0]
+    path, filename = os.path.split(modelfilename)
     os.chdir(path)
     os.system('nrnivmodl')
-    os.system('rsync -ar --remove-source-files ' + outputfolder + ' ' + workdir)
-    os.chdir(workdir)
+    #os.system('rsync -ar --remove-source-files ' + outputfolder + ' ' + workdir)
+    #os.chdir(workdir)
     print 'Current work directory is ' + os.getcwd()
     from NeuronWrapper import NrnSimulator
-    nrn = NrnSimulator(modelfilename, tstop=400)
+    nrn = NrnSimulator(filename, tstop=400)
 
 
 def run_window():
