@@ -4,4 +4,6 @@
 # NEURON Compiled files
 ./x86_64/*.*
 
+#OTHER
+./.idea/*
 
