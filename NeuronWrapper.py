@@ -29,14 +29,15 @@ class NrnSimulator:
             h.init()
             h.tstop = tstop
             self.out_data = {}
-            self.neuronsnames = []
+            self.neurons_names = []
             self.neurons = {}
             self.__find_all_neurons()
-            if len(self.neuronsnames) == 0:
+            if len(self.neurons_names) == 0:
                 raise RuntimeError(u"In File: {0:s} with model no any neurons has been found please check the "
                                    u"the file".format(model_name))
-            for name in self.neuronsnames:
-                self.neurons[name] = MyNeuron(name, index=self.neuronsnames.index(name))
+            print self.neurons_names
+            for name in self.neurons_names:
+                self.neurons[name] = MyNeuron(name, index=self.neurons_names.index(name))
             # Initialization of segments and data arrays
             for k, val in self.neurons.iteritems():
                 val.init_sections(h, paramVec)
@@ -65,6 +66,6 @@ class NrnSimulator:
         """
         for h_sec in h.allsec():
             section_name = h_sec.name()
-            index = section_name.find('_soma')
+            index = section_name.find('_')
             if index != -1:
-                self.neuronsnames.append(section_name[0:index])
+                self.neurons_names.append(section_name[0:index])

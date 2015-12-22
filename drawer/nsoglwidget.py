@@ -80,15 +80,18 @@ class NSWidget(QGLWidget):
         glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE)
         # Draw all neurons
         for k, n in neurons.iteritems():
-            for sec in n.section:
-                for sub_sec in sec.sub_sec:
-                    if n.selected:
-                        self.treecolor = (0.0, 0.5, 0.5, 0.1)
-                    else:
-                        self.treecolor = (0.1 * sub_sec.get_param('v'), 0.0 * sub_sec.get_param('v'), 0.0 * sub_sec.get_param('v'), 0.1)
-                    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, self.treecolor)
-                    glStencilFunc(GL_ALWAYS, n.index + 1, -1)
-                    self.__cylinder_2p(sub_sec, 20)
+            #if k == 'AVM':
+                for sec in n.section:
+                    for sub_sec in sec.sub_sec:
+                        if n.selected:
+                            self.treecolor = (0.0, 0.5, 0.5, 0.1)
+                        else:
+                            self.treecolor = (0.1 * sub_sec.get_param('v')[0], 0.0 * sub_sec.get_param('v')[0], 0.0 * sub_sec.get_param('v')[0], 0.1)
+                        if k == 'AVM':
+                            print sub_sec.get_param('v')[0]
+                        glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, self.treecolor)
+                        glStencilFunc(GL_ALWAYS, n.index + 1, -1)
+                        self.__cylinder_2p(sub_sec, 20)
 
     def resizeGL(self, width, height):
         """

@@ -38,7 +38,9 @@ class Segment:
     def init_segment(self, h, params):
         self.nseg = h.cas().nseg
         self.h_seg = h.cas()
-        for i in range(self.nseg - 1):
+        current_lenght = 0.0
+        len_diff_segment = self.h_seg.L/self.nseg
+        for i in range(int(h.n3d()) - 1):
             m_s = SubSegment()
             m_s.start_x = h.x3d(i)
             m_s.start_y = h.y3d(i)
@@ -48,10 +50,12 @@ class Segment:
             m_s.end_z = h.z3d(i + 1)
             m_s.diam = h.diam3d(i)
             m_s.calc_h()
-            self.__update_data(params, m_s, float(float(i)/float(self.nseg)))
+            current_lenght += m_s.h
+            x_info = int(current_lenght/len_diff_segment)
+            self.__update_data(params, m_s, float(x_info)/float(self.nseg)) # float(float(i) / (float(self.nseg)))
             self.sub_sec.append(m_s)
 
-    def __update_data(self, params, m_s, n):
+    def __update_data(self, params, m_s, n=-1):
         """
         Initializing parameters what we want get from NEURON simulation
 
@@ -60,13 +64,18 @@ class Segment:
         :param n: number of current subsection in section it defines by nseg
         """
         for p in params:
-            m_s.params[p] = self.h_seg(n)._ref_v[0]
+            if p in m_s.params:
+                m_s.params[p] = (self.h_seg(m_s.params[p][1])._ref_v[0], m_s.params[p][1])
+            elif n != -1:
+                m_s.params[p] = (self.h_seg(n)._ref_v[0], n)
+            else:
+                raise RuntimeError('Problem with initalization')
             # TODO find mode suitable way how to do it
 
     def update_data(self, params):
         for s_sec in self.sub_sec:
-            i = float(float(self.sub_sec.index(s_sec))/float(self.nseg))
-            self.__update_data(params, s_sec, i)
+            #i = float(float(self.sub_sec.index(s_sec))/float(self.nseg))
+            self.__update_data(params, s_sec)
 
 
 class MyNeuron:

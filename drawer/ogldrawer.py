@@ -99,16 +99,16 @@ class NSWindow(QtGui.QWidget):
         return slider
 
 
-def load_model(modelfilename='./model/avm.hoc', tstop=400):
+def load_model(model_filename='./model/avm.hoc', tstop=400):
     """
     Load and initialize model from file
     on first step it run nrnivmodl in folder with model and gap.mod file to generate all
     binary libs and eeded files for work with NEURON
-    :param modelfilename: name of file with path to it
+    :param model_filename: name of file with path to it
     :param tstop: time of duration of simulation
     """
     global nrn
-    path, filename = os.path.split(modelfilename)
+    path, filename = os.path.split(model_filename)
     os.chdir(path)
     osplatform = sys.platform
     if osplatform.find('linux') != -1 or osplatform.find('darwin') != -1:
@@ -124,6 +124,7 @@ def run_window():
     """
     Run main Qt window
     """
+    #load_model(model_filename='./model/_ria.hoc')
     load_model()
     app = QtGui.QApplication(["Neuron<->Python interactive work environment"])
     window = NSWindow()
