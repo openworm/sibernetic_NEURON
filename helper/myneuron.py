@@ -70,9 +70,11 @@ class Segment:
 
 
 class MyNeuron:
-    def __init__(self, name=""):
+    def __init__(self, name="", index=0):
         self.name = name
         self.section = []
+        self.selected = False
+        self.index = index
 
     def init_sections(self, h, params):
         """

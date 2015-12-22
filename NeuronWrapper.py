@@ -6,12 +6,6 @@ from helper.myneuron import MyNeuron
 
 __author__ = 'Sergey Khayrulin'
 
-
-# this 3 names of neurons it's temporary in future we will load all neurons directly from hoc file
-AVM = 'AVM'
-ALML = 'ALML'
-ALMR = 'ALMR'
-
 v = 'v'
 v_pre = 'v_pre'
 v_post = 'v_post'
@@ -42,7 +36,7 @@ class NrnSimulator:
                 raise RuntimeError(u"In File: {0:s} with model no any neurons has been found please check the "
                                    u"the file".format(model_name))
             for name in self.neuronsnames:
-                self.neurons[name] = MyNeuron(name)
+                self.neurons[name] = MyNeuron(name, index=self.neuronsnames.index(name))
             # Initialization of segments and data arrays
             for k, val in self.neurons.iteritems():
                 val.init_sections(h, paramVec)

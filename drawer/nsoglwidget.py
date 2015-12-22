@@ -1,8 +1,10 @@
 from OpenGL.GL import *
 from OpenGL.GLUT import *
+from OpenGL.GLU import *
 from OpenGL.GLUT.freeglut import *
 from PyQt4.QtCore import *
 from PyQt4.QtOpenGL import *
+import numpy as np
 
 import math
 import numpy as np
@@ -12,6 +14,9 @@ from math import sqrt, pi, acos
 class NSWidget(QGLWidget):
     def __init__(self, nrn, parent=None):
         glutInit(sys.argv)
+        glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_STENCIL)
+        super(NSWidget, self).__init__(parent)
+        self.setMouseTracking(True)
         self.xrot = 0.0
         self.yrot = 0.0
         self.ambient = (1.0, 1.0, 1.0, 1)
@@ -27,17 +32,7 @@ class NSWidget(QGLWidget):
         self.scale = 0.01
         self.old_x = 0
         self.old_y = 0
-        self.cameraTrans = [0, 0, -1.0]
-        self.cameraRot = [0] * 3
-        self.cameraTransLag = [0, 0, -1.0]
-        self.cameraRotLag = [0] * 3
-        self.modelView = [0] * 16
-        self.scale = 0.01
-        self.old_x = 0
-        self.old_y = 0
-        self.buttonState = Qt.NoButton
-        super(NSWidget, self).__init__(parent)
-        self.setMouseTracking(True)
+        self.select_line = None
 
     def __cylinder_2p(self, s, dim):
         """
@@ -75,22 +70,25 @@ class NSWidget(QGLWidget):
         """
         Display function draws scene
         """
+        glClearStencil(0)
+        glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT| GL_STENCIL_BUFFER_BIT)
 
-        # Making one step of simulation
         neurons = self.nrn.neurons
         self.lightpos = (1.0 * self.scale, 1.0 * self.scale, -2.0 * self.scale)
-        glClear(GL_COLOR_BUFFER_BIT)  # Clean screen
         glLightfv(GL_LIGHT0, GL_POSITION, self.lightpos)  # light is ratating with objects
-
+        glEnable(GL_STENCIL_TEST)
+        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE)
         # Draw all neurons
         for k, n in neurons.iteritems():
             for sec in n.section:
                 for sub_sec in sec.sub_sec:
-                    self.treecolor = (0.1 * sub_sec.get_param('v'), 0.0 * sub_sec.get_param('v'), 0.0 * sub_sec.get_param('v'), 0.1)
+                    if n.selected:
+                        self.treecolor = (0.0, 0.5, 0.5, 0.1)
+                    else:
+                        self.treecolor = (0.1 * sub_sec.get_param('v'), 0.0 * sub_sec.get_param('v'), 0.0 * sub_sec.get_param('v'), 0.1)
                     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, self.treecolor)
+                    glStencilFunc(GL_ALWAYS, n.index + 1, -1)
                     self.__cylinder_2p(sub_sec, 20)
-        #self.updateGL()
-        #glutSwapBuffers()  # Show on screen
 
     def resizeGL(self, width, height):
         """
@@ -130,6 +128,7 @@ class NSWidget(QGLWidget):
         self.updateGL()
 
     def initializeGL(self):
+        #glutInitDisplayMode(GLUT_STENCIL)
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.__updatedata)
         glEnable(GL_LIGHTING)
@@ -137,7 +136,6 @@ class NSWidget(QGLWidget):
         glLightfv(GL_LIGHT0, GL_POSITION, self.lightpos)
         glClearColor(0.5, 0.5, 0.5, 1.0)
         self.timer.start(0)
-
 
     def mouseMoveEvent(self, mouseEvent):
         """
@@ -167,11 +165,19 @@ class NSWidget(QGLWidget):
         glTranslatef(self.cameraTransLag[0], self.cameraTransLag[1], self.cameraTransLag[2])
         glRotatef(self.cameraRotLag[0], 1.0, 0.0, 0.0)
         glRotatef(self.cameraRotLag[1], 0.0, 1.0, 0.0)
-        modelView = glGetFloatv(GL_MODELVIEW_MATRIX)
+        self.modelView = glGetFloatv(GL_MODELVIEW_MATRIX)
 
     def mousePressEvent(self, e):
         self.old_x = e.x()
         self.old_y = e.y()
+        if int(e.buttons()) == Qt.LeftButton:
+            index = glReadPixels(e.x(),  self.height() - e.y() - 1, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_INT)
+            #print "selected object " + str(index[0][0] - 1)
+            if index[0][0] != 0:
+                for k, n in self.nrn.neurons.iteritems():
+                    if index[0][0] - 1 == n.index:
+                        n.selected = not n.selected
+                        break
 
     def wheelEvent(self, event):
         if event.delta() > 0:
