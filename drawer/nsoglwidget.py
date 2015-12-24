@@ -126,14 +126,14 @@ class NSWidget(QGLWidget):
         glRotatef(self.cameraRotLag[1], 0.0, 1.0, 0.0)
         modelView = glGetFloatv(GL_MODELVIEW_MATRIX)
 
-    def __updatedata(self):
+    def __update_data(self):
         self.nrn.one_step()
         self.updateGL()
 
     def initializeGL(self):
         #glutInitDisplayMode(GLUT_STENCIL)
         self.timer = QTimer(self)
-        self.timer.timeout.connect(self.__updatedata)
+        self.timer.timeout.connect(self.__update_data)
         glEnable(GL_LIGHTING)
         glEnable(GL_LIGHT0)
         glLightfv(GL_LIGHT0, GL_POSITION, self.lightpos)

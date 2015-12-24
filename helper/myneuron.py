@@ -5,7 +5,7 @@ import math
 
 
 class SubSegment:
-    def __init__(self):
+    def __init__(self, index=-1):
         """
 
         :type self: object
@@ -19,6 +19,7 @@ class SubSegment:
         self.diam = 0
         self.h = 0
         self.params = {}
+        self.index = index
 
     def calc_h(self):
         self.h = math.sqrt(math.pow(self.start_x - self.end_x, 2) + math.pow(self.start_y - self.end_y, 2) + math.pow(self.start_z - self.end_z, 2))
@@ -52,7 +53,7 @@ class Segment:
             m_s.calc_h()
             current_lenght += m_s.h
             x_info = int(current_lenght/len_diff_segment)
-            self.__update_data(params, m_s, float(x_info)/float(self.nseg)) # float(float(i) / (float(self.nseg)))
+            self.__update_data(params, m_s, float(x_info)/float(self.nseg))
             self.sub_sec.append(m_s)
 
     def __update_data(self, params, m_s, n=-1):
