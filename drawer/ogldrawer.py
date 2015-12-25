@@ -118,7 +118,7 @@ class NSWindow(QWidget):
     @pyqtSlot()
     def draw_graph(self):
         if self.graph_window is None:
-            self.graph_window = NSGraphWidget()
+            self.graph_window = NSGraphWidget(nrn, 400)
         self.graph_window.show()
 
 
@@ -147,8 +147,8 @@ def run_window():
     """
     Run main Qt windsudo apt-get install python-qt4ow
     """
-    load_model(model_filename='./model/_ria.hoc')
-    #load_model()
+    #load_model(model_filename='./model/_ria.hoc')
+    load_model()
     app = QApplication(["Neuron<->Python interactive work environment"])
     window = NSWindow()
     window.show()

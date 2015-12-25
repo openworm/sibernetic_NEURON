@@ -41,6 +41,7 @@ class NrnSimulator:
             # Initialization of segments and data arrays
             for k, val in self.neurons.iteritems():
                 val.init_sections(h, paramVec)
+            self.__indexing_subsegments()
         else:
             raise ValueError("Name of file with Model shouldn't be empty")
 
@@ -69,3 +70,19 @@ class NrnSimulator:
             index = section_name.find('_')
             if index != -1:
                 self.neurons_names.append(section_name[0:index])
+
+    def get_time(self):
+        return h.t
+
+    def __indexing_subsegments(self):
+        unique_indexes = []
+        index = 0
+        for k, v in self.neurons.iteritems():
+            for sec in v.section:
+                for sub_sec in sec.sub_sec:
+                    if not(index in unique_indexes):
+                        unique_indexes.append(index)
+                    else:
+                        index += 1
+                    sub_sec.index = index
+                    print sub_sec.index
