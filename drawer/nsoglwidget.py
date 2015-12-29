@@ -80,21 +80,25 @@ class NSWidget(QGLWidget):
         glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE)
         # Draw all neurons
         for k, n in neurons.iteritems():
-            if n.selected:
-                self.neuron_color = (0.0, 0.5, 0.5, 0.1)
-            else:
-                self.neuron_color = (0.0, 0.0, 0.0, 0.1)
-            for sec in n.section:
-                for sub_sec in sec.sub_sec:
-                    sub_segment_color = self.neuron_color
-                    if sub_sec.selected:
-                        sub_segment_color = (0.7, 0.7, 0.0, 0.1)
-                    sub_segment_color = (sub_segment_color[0] * math.fabs(sub_sec.get_param('v')[0]), sub_segment_color[1] *
-                                         math.fabs(sub_sec.get_param('v')[0]), sub_segment_color[2] * math.fabs(sub_sec.get_param('v')[0]),
-                                         0.1)
-                    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, sub_segment_color)
-                    glStencilFunc(GL_ALWAYS, sub_sec.index + 1, -1)
-                    self.__cylinder_2p(sub_sec, 20)
+            if n.name == 'AVM':
+                print n.section[0].sub_sec[0].get_param('v')[0]
+                if n.selected:
+                    self.neuron_color = (0.0, 0.5, 0.5, 0.1)
+                else:
+                    self.neuron_color = (0.0, 0.0, 0.0, 0.1)
+                for sec in n.section:
+                    for sub_sec in sec.sub_sec:
+                        sub_segment_color = self.neuron_color
+                        if sub_sec.selected:
+                            sub_segment_color = (0.7, 0.7, 0.0, 0.1)
+                        if sub_sec.get_param('v')[0] > -40.0:
+                            sub_segment_color = (0.2, 0.0, 0.0, 0.1)
+                        sub_segment_color = (sub_segment_color[0] * math.fabs(sub_sec.get_param('v')[0]), sub_segment_color[1] *
+                                             math.fabs(sub_sec.get_param('v')[0]), sub_segment_color[2] * math.fabs(sub_sec.get_param('v')[0]),
+                                             0.1)
+                        glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, sub_segment_color)
+                        glStencilFunc(GL_ALWAYS, sub_sec.index + 1, -1)
+                        self.__cylinder_2p(sub_sec, 20)
 
     def resizeGL(self, width, height):
         """
