@@ -4,7 +4,7 @@ from OpenGL.GLU import *
 from OpenGL.GLUT.freeglut import *
 from PyQt4.QtCore import *
 from PyQt4.QtOpenGL import *
-import numpy as np
+#import numpy as np
 
 import math
 import numpy as np

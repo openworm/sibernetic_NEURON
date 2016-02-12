@@ -2,6 +2,7 @@ from PyQt4 import QtCore, QtGui
 import os
 import sys
 from nsoglwidget import NSWidget
+import numpy as np
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -22,10 +23,10 @@ __author__ = 'Sergey Khayrulin'
 
 global nrn
 
-
 class NSWindow(QtGui.QWidget):
     def __init__(self):
         super(NSWindow, self).__init__()
+        #QtGui.QWidget.__init__(self)
         self.resize(1492, 989)
 
         self.glWidget = NSWidget(nrn)
@@ -34,7 +35,6 @@ class NSWindow(QtGui.QWidget):
         self.ySlider = self.createSlider()
         self.zSlider = self.createSlider()
         self.treeView = QtGui.QTreeView()
-
 
         mainLayout = QtGui.QHBoxLayout()
         mainLayout.addWidget(self.glWidget)
@@ -50,14 +50,19 @@ class NSWindow(QtGui.QWidget):
         menubar = QtGui.QMenuBar()
         menubar.setGeometry(QtCore.QRect(0, 0, 1492, 25))
         menubar.setObjectName(_fromUtf8("menubar"))
+
         menuFile = QtGui.QMenu(menubar)
         menuFile.setObjectName(_fromUtf8("menuFile"))
         menuTools = QtGui.QMenu(menubar)
         menuTools.setObjectName(_fromUtf8("menuTools"))
         menuHelp = QtGui.QMenu(menubar)
         menuHelp.setObjectName(_fromUtf8("menuHelp"))
-        actionLoad_Model = QtGui.QAction(self)
-        actionLoad_Model.setObjectName(_fromUtf8("actionLoad_Model"))
+
+        self.actionLoad_Model = QtGui.QAction(self)
+        self.connect(self.actionLoad_Model, QtCore.SIGNAL('triggered()'), self.openFileDialog)
+
+        self.actionLoad_Model.setObjectName(_fromUtf8("actionLoad_Model"))
+
         actionGraph_Widget = QtGui.QAction(self)
         actionGraph_Widget.setObjectName(_fromUtf8("actionGraph_Widget"))
         actionAbout = QtGui.QAction(self)
@@ -66,7 +71,8 @@ class NSWindow(QtGui.QWidget):
         self.actionExit.setShortcut('Ctrl+Q')
         self.connect(self.actionExit, QtCore.SIGNAL('triggered()'), QtCore.SLOT('close()'))
         self.actionExit.setObjectName(_fromUtf8("actionExit"))
-        menuFile.addAction(actionLoad_Model)
+
+        menuFile.addAction(self.actionLoad_Model)
         menuFile.addAction(self.actionExit)
         menuTools.addAction(actionGraph_Widget)
         menuHelp.addAction(actionAbout)
@@ -77,7 +83,7 @@ class NSWindow(QtGui.QWidget):
         menuFile.setTitle(_translate("MainWindow", "File", None))
         menuTools.setTitle(_translate("MainWindow", "Tools", None))
         menuHelp.setTitle(_translate("MainWindow", "Help", None))
-        actionLoad_Model.setText(_translate("MainWindow", "Load Model", None))
+        self.actionLoad_Model.setText(_translate("MainWindow", "Load Model", None))
         actionGraph_Widget.setText(_translate("MainWindow", "Graph Widget", None))
         actionAbout.setText(_translate("MainWindow", "About", None))
         self.actionExit.setText(_translate("MainWindow", "Exit", None))
@@ -98,8 +104,26 @@ class NSWindow(QtGui.QWidget):
 
         return slider
 
+    def openFileDialog(self):
+        """
+        Opens a file dialog when "Load Model" has been triggered
+        """
+        #dialog = QtGui.QFileDialog(self)
+        #QtGui.QFileDialog.setViewMode(list)
+        fileName = QtGui.QFileDialog.getOpenFileName(self, 'Open File', '/home/nya/git/Sibernetic-NEURON', ("Hoc files (*.hoc)"))
 
-def load_model(model_filename='./model/avm.hoc', tstop=400):
+        if fileName:
+            #model_fileName = fileName
+            #model_path = QFileInfo.absoluteFilePath(filePath)
+            #model_path = QtGui.QFileDialog.directory(self)
+
+            load_model(fileName)
+            #window = NSWindow()
+            #window.show()
+            #self.label.setText(filename)
+
+
+def load_model(model_filename='./model/_ria.hoc', tstop=400):
     """
     Load and initialize model from file
     on first step it run nrnivmodl in folder with model and gap.mod file to generate all
@@ -108,7 +132,7 @@ def load_model(model_filename='./model/avm.hoc', tstop=400):
     :param tstop: time of duration of simulation
     """
     global nrn
-    path, filename = os.path.split(model_filename)
+    path, filename = os.path.split(str(model_filename))
     os.chdir(path)
     osplatform = sys.platform
     if osplatform.find('linux') != -1 or osplatform.find('darwin') != -1:
