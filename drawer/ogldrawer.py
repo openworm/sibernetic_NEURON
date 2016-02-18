@@ -1,3 +1,4 @@
+from PyQt4 import QtCore, QtGui
 import os
 import sys
 from nsoglwidget import NSWidget
@@ -64,19 +65,23 @@ class NSWindow(QWidget):
         menuHelp.setObjectName(_fromUtf8("menuHelp"))
         self.actionAbout = QAction(self)
         self.actionExit = QAction(self)
-        self.actionLoad = QAction(self)
         self.actionGraph = QAction(self)
+        self.actionLoad_Model = QtGui.QAction(self)
+        actionGraph_Widget = QtGui.QAction(self)
+        actionGraph_Widget.setObjectName(_fromUtf8("actionGraph_Widget"))
+        actionAbout = QtGui.QAction(self)
+        actionAbout.setObjectName(_fromUtf8("actionAbout"))
+        self.actionExit = QtGui.QAction(self)
         self.actionExit.setShortcut('Ctrl+Q')
-        self.actionLoad.setShortcut('Ctrl+L')
         self.connect(self.actionExit, SIGNAL('triggered()'), SLOT('close()'))
         self.connect(self.actionAbout, SIGNAL('triggered()'), SLOT('about()'))
-        self.connect(self.actionLoad, SIGNAL('triggered()'), SLOT('load_model()'))
         self.connect(self.actionGraph, SIGNAL('triggered()'), SLOT('draw_graph()'))
-        self.actionLoad.setObjectName(_fromUtf8("actionLoad"))
+        self.connect(self.actionLoad_Model, QtCore.SIGNAL('triggered()'), self.openFileDialog)
+        self.actionLoad_Model.setObjectName(_fromUtf8("actionLoad_Model"))
         self.actionExit.setObjectName(_fromUtf8("actionExit"))
         self.actionAbout.setObjectName(_fromUtf8("actionAbout"))
         self.actionGraph.setObjectName(_fromUtf8("actionGraph"))
-        menuFile.addAction(self.actionLoad)
+        menuFile.addAction(self.actionLoad_Model)
         menuFile.addAction(self.actionExit)
         menuTools.addAction(self.actionGraph)
         menuHelp.addAction(self.actionAbout)
@@ -87,8 +92,10 @@ class NSWindow(QWidget):
         menuFile.setTitle(_translate("MainWindow", "File", None))
         menuTools.setTitle(_translate("MainWindow", "Tools", None))
         menuHelp.setTitle(_translate("MainWindow", "Help", None))
-        self.actionLoad.setText(_translate("MainWindow", "Load Model", None))
         self.actionAbout.setText(_translate("MainWindow", "About", None))
+        self.actionLoad_Model.setText(_translate("MainWindow", "Load Model", None))
+        actionGraph_Widget.setText(_translate("MainWindow", "Graph Widget", None))
+        actionAbout.setText(_translate("MainWindow", "About", None))
         self.actionExit.setText(_translate("MainWindow", "Exit", None))
         self.actionGraph.setText(_translate("MainWindow", "Draw Graph", None))
         mainLayout.setMenuBar(menubar)
@@ -108,10 +115,6 @@ class NSWindow(QWidget):
         return slider
 
     @pyqtSlot()
-    def load_model(self):
-        QMessageBox.about(self, "About", "This is an about box \n shown with QAction of QMenu.")
-
-    @pyqtSlot()
     def about(self):
         QMessageBox.about(self, "About", "This is an about box \n shown with QAction of QMenu.")
 
@@ -121,8 +124,26 @@ class NSWindow(QWidget):
             self.graph_window = NSGraphWidget()
         self.graph_window.show()
 
+    def openFileDialog(self):
+        """
+        Opens a file dialog when "Load Model" has been triggered
+        """
+        #dialog = QtGui.QFileDialog(self)
+        #QtGui.QFileDialog.setViewMode(list)
+        fileName = QtGui.QFileDialog.getOpenFileName(self, 'Open File', '/home/nya/git/Sibernetic-NEURON', ("Hoc files (*.hoc)"))
 
-def load_model(model_filename='./model/avm.hoc', tstop=400):
+        if fileName:
+            #model_fileName = fileName
+            #model_path = QFileInfo.absoluteFilePath(filePath)
+            #model_path = QtGui.QFileDialog.directory(self)
+
+            load_model(fileName)
+            #window = NSWindow()
+            #window.show()
+            #self.label.setText(filename)
+
+
+def load_model(model_filename='./model/_ria.hoc', tstop=400):
     """
     Load and initialize model from file
     on first step it run nrnivmodl in folder with model and gap.mod file to generate all
@@ -131,7 +152,7 @@ def load_model(model_filename='./model/avm.hoc', tstop=400):
     :param tstop: time of duration of simulation
     """
     global nrn
-    path, filename = os.path.split(model_filename)
+    path, filename = os.path.split(str(model_filename))
     os.chdir(path)
     osplatform = sys.platform
     if osplatform.find('linux') != -1 or osplatform.find('darwin') != -1:
@@ -147,7 +168,7 @@ def run_window():
     """
     Run main Qt windsudo apt-get install python-qt4ow
     """
-    load_model(model_filename='./model/_ria.hoc')
+    load_model(model_filename='./model/avm.hoc')
     #load_model()
     app = QApplication(["Neuron<->Python interactive work environment"])
     window = NSWindow()
