@@ -121,7 +121,7 @@ class NSWindow(QWidget):
     @pyqtSlot()
     def draw_graph(self):
         if self.graph_window is None:
-            self.graph_window = NSGraphWidget()
+            self.graph_window = NSGraphWidget(nrn, 400)
         self.graph_window.show()
 
     def openFileDialog(self):
