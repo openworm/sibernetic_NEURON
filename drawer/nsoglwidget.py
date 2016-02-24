@@ -175,8 +175,9 @@ class NSWidget(QGLWidget):
         self.old_y = e.y()
         if int(e.buttons()) == Qt.LeftButton:
             index = glReadPixels(e.x(),  self.height() - e.y() - 1, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_INT)
-            #print "selected object " + str(index[0][0] - 1)
+
             if index[0][0] != 0:
+                print "selected object " + str(index[0][0] - 1)
                 for k, n in self.nrn.neurons.iteritems():
                     if index[0][0] - 1 == n.index:
                         n.selected = not n.selected
@@ -184,6 +185,12 @@ class NSWidget(QGLWidget):
 
     def wheelEvent(self, event):
         if event.delta() > 0:
-            self.scale *= 1.1
+            self.zoomPlus()
         else:
-            self.scale /= 1.1
+            self.zoomMinus()
+
+    def zoomPlus(self):
+        self.scale *= 1.1
+
+    def zoomMinus(self):
+        self.scale /=1.1
