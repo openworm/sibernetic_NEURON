@@ -1,10 +1,8 @@
 from OpenGL.GL import *
 from OpenGL.GLUT import *
-from OpenGL.GLU import *
 from OpenGL.GLUT.freeglut import *
 from PyQt4.QtCore import *
 from PyQt4.QtOpenGL import *
-#import numpy as np
 
 import math
 import numpy as np
@@ -17,22 +15,30 @@ class NSWidget(QGLWidget):
         glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_STENCIL)
         super(NSWidget, self).__init__(parent)
         self.setMouseTracking(True)
-        self.xrot = 0.0
-        self.yrot = 0.0
+        self.__init_vars(nrn)
+        self.look_draw_state = False
+
+    def __init_vars(self, nrn):
+        """
+        Init all variables for drawing
+        :param nrn:
+        :return:
+        """
+        self.x_rot = 0.0
+        self.y_rot = 0.0
         self.ambient = (1.0, 1.0, 1.0, 1)
-        self.neuron_color = (0.1, 0.1, 0.1, 0.8) #TODO rename
-        self.lightpos = (1.0, 1.0, -2.0)
+        self.neuron_color = (0.1, 0.1, 0.1, 0.8)
+        self.light_pos = (1.0, 1.0, -2.0)
         # init NEURON SIMULATOR
         self.nrn = nrn
         self.cameraTrans = [0, 0, -1.0]
         self.cameraRot = [0] * 3
         self.cameraTransLag = [0, 0, -1.0]
         self.cameraRotLag = [0] * 3
-        self.modelView = [0] * 16
+        self.model_view = [0] * 16
         self.scale = 0.01
         self.old_x = 0
         self.old_y = 0
-        self.select_line = None
 
     def __cylinder_2p(self, s, dim):
         """
@@ -45,7 +51,7 @@ class NSWidget(QGLWidget):
         4) rotate on angle
         5) draw cylinder
         """
-        diamScale = 1 / self.scale
+        diam_scale = 1 / self.scale
         v1 = np.array([s.start_x * self.scale, s.start_y * self.scale, s.start_z * self.scale])
         v2 = np.array([s.end_x * self.scale, s.end_y * self.scale, s.end_z * self.scale])
         v2r = v2 - v1
@@ -63,7 +69,7 @@ class NSWidget(QGLWidget):
         if angle == 180.0:
             angle = -angle
         glRotatef(angle, ax[0], ax[1], ax[2])
-        glutSolidCylinder(s.diam / diamScale, l, dim, dim)
+        glutSolidCylinder(s.diam / diam_scale, l, dim, dim)
         glPopMatrix()
 
     def paintGL(self):
@@ -74,14 +80,12 @@ class NSWidget(QGLWidget):
         glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT| GL_STENCIL_BUFFER_BIT)
 
         neurons = self.nrn.neurons
-        self.lightpos = (1.0 * self.scale, 1.0 * self.scale, -2.0 * self.scale)
-        glLightfv(GL_LIGHT0, GL_POSITION, self.lightpos)  # light is ratating with objects
+        self.light_pos = (1.0 * self.scale, 1.0 * self.scale, -2.0 * self.scale)
+        glLightfv(GL_LIGHT0, GL_POSITION, self.light_pos)  # light is ratating with objects
         glEnable(GL_STENCIL_TEST)
         glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE)
         # Draw all neurons
         for k, n in neurons.iteritems():
-            #if n.name == 'AVM':
-            #print n.section[0].sub_sec[0].get_param('v')[0]
             if n.selected:
                 self.neuron_color = (0.0, 0.5, 0.5, 0.1)
             else:
@@ -91,11 +95,9 @@ class NSWidget(QGLWidget):
                     sub_segment_color = self.neuron_color
                     if sub_sec.selected:
                         sub_segment_color = (0.7, 0.7, 0.0, 0.1)
-                    #if sub_sec.get_param('v')[0] > -40.0:
-                    #    sub_segment_color = (0.1, 0.0, 0.0, 0.1)
-                    sub_segment_color = (sub_segment_color[0] * math.fabs(sub_sec.get_param('v')[0]), sub_segment_color[1] *
-                                         math.fabs(sub_sec.get_param('v')[0]), sub_segment_color[2] * math.fabs(sub_sec.get_param('v')[0]),
-                                         0.1)
+                    #sub_segment_color = (sub_segment_color[0] * math.fabs(sub_sec.get_param('v')[0]), sub_segment_color[1] *
+                    #                     math.fabs(sub_sec.get_param('v')[0]), sub_segment_color[2] * math.fabs(sub_sec.get_param('v')[0]),
+                    #                     0.1)
                     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, sub_segment_color)
                     glStencilFunc(GL_ALWAYS, sub_sec.index + 1, -1)
                     self.__cylinder_2p(sub_sec, 20)
@@ -131,19 +133,20 @@ class NSWidget(QGLWidget):
         glTranslatef(self.cameraTransLag[0], self.cameraTransLag[1], self.cameraTransLag[2])
         glRotatef(self.cameraRotLag[0], 1.0, 0.0, 0.0)
         glRotatef(self.cameraRotLag[1], 0.0, 1.0, 0.0)
-        modelView = glGetFloatv(GL_MODELVIEW_MATRIX)
+        self.model_view = glGetFloatv(GL_MODELVIEW_MATRIX)
 
     def __update_data(self):
+        if self.look_draw_state:
+            return
         self.nrn.one_step()
         self.updateGL()
 
     def initializeGL(self):
-        #glutInitDisplayMode(GLUT_STENCIL)
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.__update_data)
         glEnable(GL_LIGHTING)
         glEnable(GL_LIGHT0)
-        glLightfv(GL_LIGHT0, GL_POSITION, self.lightpos)
+        glLightfv(GL_LIGHT0, GL_POSITION, self.light_pos)
         glClearColor(0.5, 0.5, 0.5, 1.0)
         self.timer.start(0)
 
@@ -175,14 +178,14 @@ class NSWidget(QGLWidget):
         glTranslatef(self.cameraTransLag[0], self.cameraTransLag[1], self.cameraTransLag[2])
         glRotatef(self.cameraRotLag[0], 1.0, 0.0, 0.0)
         glRotatef(self.cameraRotLag[1], 0.0, 1.0, 0.0)
-        self.modelView = glGetFloatv(GL_MODELVIEW_MATRIX)
+        self.model_view = glGetFloatv(GL_MODELVIEW_MATRIX)
 
     def mousePressEvent(self, e):
         self.old_x = e.x()
         self.old_y = e.y()
         if int(e.buttons()) == Qt.LeftButton:
             index = glReadPixels(e.x(),  self.height() - e.y() - 1, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_INT)
-            print "selected object " + str(index[0][0] - 1)
+            #print "selected object " + str(index[0][0] - 1)
             if index[0][0] != 0:
                 for k, n in self.nrn.neurons.iteritems():
                     for sec in n.section:
@@ -201,3 +204,12 @@ class NSWidget(QGLWidget):
             self.scale *= 1.1
         else:
             self.scale /= 1.1
+
+    def look_draw(self):
+        self.look_draw_state = not self.look_draw_state
+        pass
+
+    def update_scene(self, new_nrn):
+        self.initializeGL()
+        self.__init_vars(new_nrn)
+

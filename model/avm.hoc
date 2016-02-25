@@ -105,9 +105,9 @@ nseg = 7
 insert pas
 for i=0,6 { pt3dadd(400, 0, 2.5*(3-i)/3,  2*2.5*sqrt(1-((3-i)/3.1)*((3-i)/3.1)) ) }    
 
-AVM_dend1_xyz[0][0] = x3d(6)
-AVM_dend1_xyz[0][1] = y3d(6) 
-AVM_dend1_xyz[0][2] = z3d(6)
+AVM_dend1_xyz[0][0] = x3d(5)
+AVM_dend1_xyz[0][1] = y3d(5) 
+AVM_dend1_xyz[0][2] = z3d(5)
 
 AVM_dend1_xyz[1][0] = 400 
 AVM_dend1_xyz[1][1] =   0 
@@ -154,9 +154,9 @@ v = -40.0
 nseg=10
 for i=0,9 { pt3dadd(AVM_dend1_xyz[i][0], AVM_dend1_xyz[i][1], AVM_dend1_xyz[i][2], 0.35+0.0*(3-i)) }
 
-AVM_dend1u_xyz[0][0] = x3d(9) 
-AVM_dend1u_xyz[0][1] = y3d(9) 
-AVM_dend1u_xyz[0][2] = z3d(9)
+AVM_dend1u_xyz[0][0] = x3d(8) 
+AVM_dend1u_xyz[0][1] = y3d(8) 
+AVM_dend1u_xyz[0][2] = z3d(8)
 
 AVM_dend1u_xyz[1][0] = 142 
 AVM_dend1u_xyz[1][1] =   0 
@@ -172,9 +172,9 @@ AVM_dend1u_xyz[3][2] = -13
 
 //
 
-AVM_dend2_xyz[0][0] = x3d(9) 
-AVM_dend2_xyz[0][1] = y3d(9) 
-AVM_dend2_xyz[0][2] = z3d(9)
+AVM_dend2_xyz[0][0] = x3d(8) 
+AVM_dend2_xyz[0][1] = y3d(8) 
+AVM_dend2_xyz[0][2] = z3d(8)
 
 AVM_dend2_xyz[1][0] = 110 
 AVM_dend2_xyz[1][1] =   0 
@@ -200,9 +200,9 @@ for i=0,3 { pt3dadd(AVM_dend1u_xyz[i][0], AVM_dend1u_xyz[i][1], AVM_dend1u_xyz[i
 
 //============= left
 
-AVM_dend1ul_xyz[0][0] = x3d(3) 
-AVM_dend1ul_xyz[0][1] = y3d(3) 
-AVM_dend1ul_xyz[0][2] = z3d(3)
+AVM_dend1ul_xyz[0][0] = x3d(2) 
+AVM_dend1ul_xyz[0][1] = y3d(2) 
+AVM_dend1ul_xyz[0][2] = z3d(2)
 
 AVM_dend1ul_xyz[1][0] = 139 
 AVM_dend1ul_xyz[1][1] =   3 
@@ -218,9 +218,9 @@ AVM_dend1ul_xyz[3][2] =  -9
 
 //================= right
 
-AVM_dend1ur_xyz[0][0] = x3d(3) 
-AVM_dend1ur_xyz[0][1] = y3d(3) 
-AVM_dend1ur_xyz[0][2] = z3d(3)
+AVM_dend1ur_xyz[0][0] = x3d(2) 
+AVM_dend1ur_xyz[0][1] = y3d(2) 
+AVM_dend1ur_xyz[0][2] = z3d(2)
 
 AVM_dend1ur_xyz[1][0] = 139 
 AVM_dend1ur_xyz[1][1] =  -3 
@@ -283,9 +283,9 @@ nseg = 7
 insert pas
 for i=0,6 { pt3dadd(400+2.5*(3-i)/3, -25, 25,  2*2.5*sqrt(1-((3-i)/3.1)*((3-i)/3.1)) ) }    
 
-ALML_dend1_xyz[0][0] = x3d(6)
-ALML_dend1_xyz[0][1] = y3d(6) 
-ALML_dend1_xyz[0][2] = z3d(6)
+ALML_dend1_xyz[0][0] = x3d(5)
+ALML_dend1_xyz[0][1] = y3d(5) 
+ALML_dend1_xyz[0][2] = z3d(5)
 
 ALML_dend1_xyz[1][0] = 400 
 ALML_dend1_xyz[1][1] = -24 
@@ -332,9 +332,9 @@ v = -40.0
 nseg=10
 for i=0,9 { pt3dadd(ALML_dend1_xyz[i][0], ALML_dend1_xyz[i][1], ALML_dend1_xyz[i][2], 0.35+0.0*(3-i)) }
 
-ALML_dend1d_xyz[0][0] = x3d(9) 
-ALML_dend1d_xyz[0][1] = y3d(9) 
-ALML_dend1d_xyz[0][2] = z3d(9)
+ALML_dend1d_xyz[0][0] = x3d(8) 
+ALML_dend1d_xyz[0][1] = y3d(8) 
+ALML_dend1d_xyz[0][2] = z3d(8)
 
 ALML_dend1d_xyz[1][0] = 127 
 ALML_dend1d_xyz[1][1] = -13  
@@ -350,9 +350,9 @@ ALML_dend1d_xyz[3][2] =   9
 
 //
 
-ALML_dend2_xyz[0][0] = x3d(9) 
-ALML_dend2_xyz[0][1] = y3d(9) 
-ALML_dend2_xyz[0][2] = z3d(9)
+ALML_dend2_xyz[0][0] = x3d(8) 
+ALML_dend2_xyz[0][1] = y3d(8) 
+ALML_dend2_xyz[0][2] = z3d(8)
 
 ALML_dend2_xyz[1][0] = 110 
 ALML_dend2_xyz[1][1] = -13  
@@ -376,9 +376,9 @@ v = -40.0
 nseg=4
 for i=0,3 { pt3dadd(ALML_dend1d_xyz[i][0], ALML_dend1d_xyz[i][1], ALML_dend1d_xyz[i][2], 0.35+0.0*(3-i)) }
 
-ALML_dend1dl_xyz[0][0] = x3d(3) 
-ALML_dend1dl_xyz[0][1] = y3d(3) 
-ALML_dend1dl_xyz[0][2] = z3d(3)
+ALML_dend1dl_xyz[0][0] = x3d(2) 
+ALML_dend1dl_xyz[0][1] = y3d(2) 
+ALML_dend1dl_xyz[0][2] = z3d(2)
 
 ALML_dend1dl_xyz[1][0] = 125 
 ALML_dend1dl_xyz[1][1] =  -9  

@@ -2,6 +2,7 @@ import sys
 import os.path
 
 from neuron import h
+#from neuron import gui TODO remove this than
 from helper.myneuron import MyNeuron
 
 __author__ = 'Sergey Khayrulin'
@@ -12,6 +13,8 @@ v_post = 'v_post'
 i_syn = 'i_syn'
 t = 't'
 paramVec = [v]
+
+h.load_file("stdrun.hoc")
 
 
 class NrnSimulator:
@@ -25,7 +28,7 @@ class NrnSimulator:
             if not (os.path.isfile(model_name)):
                 raise AttributeError(
                     u"File: {0:s} doesn't exist please check the path to the file or name of file".format(model_name))
-            h.load_file(model_name)
+            h.load_file(1, model_name) # http://www.neuron.yale.edu/neuron/static/new_doc/programming/dynamiccode.html#
             h.init()
             h.tstop = tstop
             self.out_data = {}
@@ -41,7 +44,7 @@ class NrnSimulator:
             # Initialization of segments and data arrays
             for k, val in self.neurons.iteritems():
                 val.init_sections(h, paramVec)
-            self.__indexing_subsegments()
+            self.__index_sub_segments()
         else:
             raise ValueError("Name of file with Model shouldn't be empty")
 
@@ -51,8 +54,7 @@ class NrnSimulator:
 
     def one_step(self):
         """
-
-        :rtype : object
+        Make one step of NEURON simulation
         """
         if h.t < h.tstop:
             h.advance()
@@ -63,7 +65,7 @@ class NrnSimulator:
 
     def __find_all_neurons(self):
         """
-        Serach neurons names from hoc segment name
+        Search neurons names from hoc segment name
         """
         for h_sec in h.allsec():
             section_name = h_sec.name()
@@ -74,7 +76,7 @@ class NrnSimulator:
     def get_time(self):
         return h.t
 
-    def __indexing_subsegments(self):
+    def __index_sub_segments(self):
         unique_indexes = []
         index = 0
         for k, v in self.neurons.iteritems():
@@ -85,4 +87,10 @@ class NrnSimulator:
                     else:
                         index += 1
                     sub_sec.index = index
-                    print sub_sec.index
+
+    def finish(self):
+        """
+        Do nothing yet
+        """
+        #h.close()
+        pass
