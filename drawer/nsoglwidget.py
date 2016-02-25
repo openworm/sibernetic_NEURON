@@ -39,7 +39,7 @@ class NSWidget(QGLWidget):
         adapted from http://www.thjsmith.com/40/cylinder-between-two-points-opengl-c
         Drawing cylinder by two point
         Algorithm:
-        1) calculate vector between end and start of section
+        1) calculate vector between end and start of segment
         2) calculate angle between Axis OZ and this vector
         3) translate System of coordinates into start position
         4) rotate on angle
@@ -81,17 +81,17 @@ class NSWidget(QGLWidget):
         # Draw all neurons
         for k, n in neurons.iteritems():
             #if k == 'AVM':
-                for sec in n.section:
-                    for sub_sec in sec.sub_sec:
+                for seg in n.segment:
+                    for sub_seg in seg.sub_seg:
                         if n.selected:
                             self.treecolor = (0.0, 0.5, 0.5, 0.1)
                         else:
-                            self.treecolor = (0.1 * sub_sec.get_param('v')[0], 0.0 * sub_sec.get_param('v')[0], 0.0 * sub_sec.get_param('v')[0], 0.1)
+                            self.treecolor = (0.1 * sub_seg.get_param('v')[0], 0.0 * sub_seg.get_param('v')[0], 0.0 * sub_seg.get_param('v')[0], 0.1)
                         if k == 'AVM':
-                            print sub_sec.get_param('v')[0]
+                            print sub_seg.get_param('v')[0]
                         glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, self.treecolor)
                         glStencilFunc(GL_ALWAYS, n.index + 1, -1)
-                        self.__cylinder_2p(sub_sec, 20)
+                        self.__cylinder_2p(sub_seg, 20)
 
     def resizeGL(self, width, height):
         """

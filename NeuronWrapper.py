@@ -40,7 +40,7 @@ class NrnSimulator:
                 self.neurons[name] = MyNeuron(name, index=self.neurons_names.index(name))
             # Initialization of segments and data arrays
             for k, val in self.neurons.iteritems():
-                val.init_sections(h, paramVec)
+                val.init_segments(h, paramVec)
         else:
             raise ValueError("Name of file with Model shouldn't be empty")
 
@@ -64,8 +64,8 @@ class NrnSimulator:
         """
         Serach neurons names from hoc segment name
         """
-        for h_sec in h.allsec():
-            section_name = h_sec.name()
-            index = section_name.find('_')
+        for h_seg in h.allsec():
+            segment_name = h_seg.name()
+            index = segment_name.find('_')
             if index != -1:
-                self.neurons_names.append(section_name[0:index])
+                self.neurons_names.append(segment_name[0:index])

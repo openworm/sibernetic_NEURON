@@ -7,7 +7,6 @@ import math
 class SubSegment:
     def __init__(self):
         """
-
         :type self: object
         """
         self.start_x = 0
@@ -33,7 +32,7 @@ class Segment:
         self.signal = -1
         self.color = 0
         self.name = name
-        self.sub_sec = []
+        self.sub_seg = []
 
     def init_segment(self, h, params):
         self.nseg = h.cas().nseg
@@ -53,7 +52,7 @@ class Segment:
             current_lenght += m_s.h
             x_info = int(current_lenght/len_diff_segment)
             self.__update_data(params, m_s, float(x_info)/float(self.nseg)) # float(float(i) / (float(self.nseg)))
-            self.sub_sec.append(m_s)
+            self.sub_seg.append(m_s)
 
     def __update_data(self, params, m_s, n=-1):
         """
@@ -61,7 +60,7 @@ class Segment:
 
         :param params: parameters interesting
         :param m_s: current subsegmet
-        :param n: number of current subsection in section it defines by nseg
+        :param n: number of current subsegment in segment. it is defined by nseg
         """
         for p in params:
             if p in m_s.params:
@@ -73,35 +72,35 @@ class Segment:
             # TODO find mode suitable way how to do it
 
     def update_data(self, params):
-        for s_sec in self.sub_sec:
-            #i = float(float(self.sub_sec.index(s_sec))/float(self.nseg))
-            self.__update_data(params, s_sec)
+        for s_seg in self.sub_seg:
+            #i = float(float(self.sub_seg.index(s_seg))/float(self.nseg))
+            self.__update_data(params, s_seg)
 
 
 class MyNeuron:
     def __init__(self, name="", index=0):
         self.name = name
-        self.section = []
+        self.segment = []
         self.selected = False
         self.index = index
 
-    def init_sections(self, h, params):
+    def init_segments(self, h, params):
         """
-        Select from list of sections
-        only sections for particular helper
-        fill list of section ids
+        Select from list of segments
+        only segments for particular helper
+        fill list of segment ids
 
         :param h: hocObject
         """
         pattern = '^' + self.name + '_.*'
         nrn_pattern = re.compile(pattern)
         index = 0
-        for h_sec in h.allsec():
-            section_name = h_sec.name()
-            if not (nrn_pattern.search(section_name) is None):
-                s = Segment(index, section_name)
+        for h_seg in h.allsec():
+            segment_name = h_seg.name()
+            if not (nrn_pattern.search(segment_name) is None):
+                s = Segment(index, segment_name)
                 s.init_segment(h, params)
-                self.section.append(s)
+                self.segment.append(s)
             index += 1
 
     def update_seg_data(self, params):
@@ -109,5 +108,5 @@ class MyNeuron:
 
         :rtype : object
         """
-        for s in self.section:
+        for s in self.segment:
             s.update_data(params)

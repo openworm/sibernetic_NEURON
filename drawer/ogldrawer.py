@@ -94,7 +94,7 @@ class NSWindow(QtGui.QMainWindow):
 
         self.createDockWindow()
 
-        #self.neuronsNames()
+        self.neuronsNames()
 
         #self.setWindowTitle("Python NEURON work environment")
 
@@ -138,24 +138,26 @@ class NSWindow(QtGui.QMainWindow):
     def createDockWindow(self):
         dock = QtGui.QDockWidget("List of Neurons", self)
         dock.setAllowedAreas(QtCore.Qt.RightDockWidgetArea)
-        self.neuronsList = QtGui.QListWidget(dock)
-        for p in nrn.neurons_names:
-            self.neuronsList.addItems([p])
+        self.neuronsList = myListWidget()
+
+        for l in nrn.neurons.keys():
+            self.neuronsList.addItem(l)
+
         dock.setWidget(self.neuronsList)
         self.addDockWidget(QtCore.Qt.RightDockWidgetArea, dock)
         #self.neuronsList.setObjectName("Neurons")
         self.tools.addAction(dock.toggleViewAction())
         self.neuronsList.setMaximumWidth(100)
 
-        #self.connect (self.neuronsList.currentTextChanged(), self.openInputDialog)
+        self.neuronsList.itemClicked.connect(self.neuronsList.Clicked)
 
-        #self.neuronsList.currentTextChanged.connect(lambda: self.selectingNeuron(self.neuronsList.currentItem))
-        self.neuronsList.itemClicked.connect(lambda: self.selectingNeuron(self.neuronsList.currentItem))
 
-    def selectingNeuron(self, name):
-        for p in nrn.neurons_names:
-            if p == name:
-                self.glWidget.p.selected = not self.glWidget.p.selected
+class myListWidget(QtGui.QListWidget):
+
+    def Clicked(self, item):
+        for p, n in nrn.neurons.iteritems():
+            if (p == item.text()):
+                n.selected = not n.selected
 
 
 def load_model(model_filename='./model/_ria.hoc', tstop=400):
