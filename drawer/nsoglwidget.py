@@ -90,15 +90,15 @@ class NSWidget(QGLWidget):
                 self.neuron_color = (0.0, 0.5, 0.5, 0.1)
             else:
                 self.neuron_color = (0.1, 0.1, 0.1, 0.1)
-            for sec in n.section:
-                for sub_sec in sec.sub_sec:
-                    sub_segment_color = self.neuron_color
+            for sec in n.sections:
+                for sub_sec in sec.sub_sections:
+                    sub_section_color = self.neuron_color
                     if sub_sec.selected:
-                        sub_segment_color = (0.7, 0.7, 0.0, 0.1)
+                        sub_section_color = (0.7, 0.7, 0.0, 0.1)
                     #sub_segment_color = (sub_segment_color[0] * math.fabs(sub_sec.get_param('v')[0]), sub_segment_color[1] *
                     #                     math.fabs(sub_sec.get_param('v')[0]), sub_segment_color[2] * math.fabs(sub_sec.get_param('v')[0]),
                     #                     0.1)
-                    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, sub_segment_color)
+                    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, sub_section_color)
                     glStencilFunc(GL_ALWAYS, sub_sec.index + 1, -1)
                     self.__cylinder_2p(sub_sec, 20)
 
@@ -185,12 +185,11 @@ class NSWidget(QGLWidget):
         self.old_y = e.y()
         if int(e.buttons()) == Qt.LeftButton:
             index = glReadPixels(e.x(),  self.height() - e.y() - 1, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_INT)
-
             if index[0][0] != 0:
-                print "selected object " + str(index[0][0] - 1)
+                #print "selected object " + str(index[0][0] - 1)
                 for k, n in self.nrn.neurons.iteritems():
-                    for sec in n.section:
-                        for sub_sec in sec.sub_sec:
+                    for sec in n.sections:
+                        for sub_sec in sec.sub_sections:
                             if index[0][0] - 1 == sub_sec.index:
                                 if not n.selected:
                                     n.selected = True

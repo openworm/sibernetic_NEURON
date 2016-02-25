@@ -4,7 +4,7 @@ import math
 __author__ = 'Serg Khayrulin'
 
 
-class SubSegment:
+class SubSection:
     def __init__(self, parent=None):
         """
         :type self: object
@@ -30,23 +30,23 @@ class SubSegment:
         return self.params[p_name]
 
 
-class Segment:
+class Section:
     def __init__(self, index=-1, name='', parent=None):
         self.index = index
         self.signal = -1
         self.color = 0
         self.name = name
-        self.sub_sec = []
+        self.sub_sections = []
         self.selected = False
         self.parent = parent
 
-    def init_segment(self, h, params):
+    def init_section(self, h, params):
         self.nseg = h.cas().nseg
-        self.h_seg = h.cas()
+        self.h_sec = h.cas()
         current_lenght = 0.0
-        len_diff_segment = self.h_seg.L/self.nseg
+        len_diff_section = self.h_sec.L / self.nseg
         for i in range(int(h.n3d()) - 1):
-            m_s = SubSegment(self)
+            m_s = SubSection(self)
             m_s.start_x = h.x3d(i)
             m_s.start_y = h.y3d(i)
             m_s.start_z = h.z3d(i)
@@ -56,35 +56,35 @@ class Segment:
             m_s.diam = h.diam3d(i)
             m_s.calc_h()
             current_lenght += m_s.h
-            x_info = int(current_lenght/len_diff_segment)
+            x_info = int(current_lenght/len_diff_section)
             self.__update_data(params, m_s, float(x_info)/float(self.nseg))
-            self.sub_sec.append(m_s)
+            self.sub_sections.append(m_s)
 
     def __update_data(self, params, m_s, n=-1):
         """
         Initializing parameters what we want to get from NEURON simulation
         :param params: parameters interesting
-        :param m_s: current subsegmet
+        :param m_s: current subsection
         :param n: number of current subsection in section it defines by nseg
         """
         for p in params:
             if p in m_s.params:
-                m_s.params[p] = (self.h_seg(m_s.params[p][1])._ref_v[0], m_s.params[p][1])
+                m_s.params[p] = (self.h_sec(m_s.params[p][1])._ref_v[0], m_s.params[p][1])
             elif n != -1:
-                m_s.params[p] = (self.h_seg(n)._ref_v[0], n)
+                m_s.params[p] = (self.h_sec(n)._ref_v[0], n)
             else:
                 raise RuntimeError('Problem with initalization')
             # TODO find mode suitable way how to do it
 
     def update_data(self, params):
-        for s_sec in self.sub_sec:
+        for s_sec in self.sub_sections:
             self.__update_data(params, s_sec)
 
 
 class MyNeuron:
-    def __init__(self, name="", index=0):
+    def __init__(self, name='', index=0):
         self.name = name
-        self.section = []
+        self.sections = []
         self.selected = False
         self.index = index
 
@@ -95,6 +95,7 @@ class MyNeuron:
         fill list of section ids
 
         :param h: hocObject
+        :param params: list of parameters which we wanna track
         """
         pattern = '^' + self.name + '_.*'
         nrn_pattern = re.compile(pattern)
@@ -102,31 +103,40 @@ class MyNeuron:
         for h_sec in h.allsec():
             section_name = h_sec.name()
             if not (nrn_pattern.search(section_name) is None):
-                s = Segment(index, section_name, self)
-                s.init_segment(h, params)
-                self.section.append(s)
+                s = Section(index, section_name, self)
+                s.init_section(h, params)
+                self.sections.append(s)
             index += 1
 
-    def update_seg_data(self, params):
+    def update_sec_data(self, params):
         """
+        Update data about params for section
 
-        :rtype : object
+        :param params: list of parameters which we wanna update
         """
-        for s in self.section:
+        for s in self.sections:
             s.update_data(params)
 
     def turn_off_selection(self):
+        """
+        Make selected neuron unselected
+        """
         self.selected = False
-        for sec in self.section:
+        for sec in self.sections:
             sec.selected = False
-            for sub_sec in sec.sub_sec:
+            for sub_sec in sec.sub_sections:
                 sub_sec.selected = False
 
     def get_selected_section(self):
+        """
+        Ger selected subsection in selected section
+
+        :return: SubSection object
+        """
         if not self.selected:
             return None
-        for sec in self.section:
+        for sec in self.sections:
             if sec.selected:
-                for sub_sec in sec.sub_sec:
+                for sub_sec in sec.sub_sections:
                     if sub_sec.selected:
                         return sub_sec

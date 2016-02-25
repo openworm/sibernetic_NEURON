@@ -50,7 +50,7 @@ class NrnSimulator:
 
     def __update_data(self):
         for k, val in self.neurons.iteritems():
-            val.update_seg_data(paramVec)
+            val.update_sec_data(paramVec)
 
     def one_step(self):
         """
@@ -80,8 +80,8 @@ class NrnSimulator:
         unique_indexes = []
         index = 0
         for k, v in self.neurons.iteritems():
-            for sec in v.section:
-                for sub_sec in sec.sub_sec:
+            for sec in v.sections:
+                for sub_sec in sec.sub_sections:
                     if not(index in unique_indexes):
                         unique_indexes.append(index)
                     else:
