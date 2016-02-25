@@ -22,99 +22,103 @@ except AttributeError:
     def _translate(context, text, disambig):
         return QApplication.translate(context, text, disambig)
 
-# coding=utf-8
 __author__ = 'Sergey Khayrulin'
 
 global nrn
 
 nrn = None
 
-class NSWindow(QWidget):
+class NSWindow(QtGui.QMainWindow):
     def __init__(self):
         super(NSWindow, self).__init__()
         self.resize(1492, 989)
         self.graph_window = None
         self.glWidget = NSWidget(nrn)
-        self.xSlider = self.createSlider()
-        self.ySlider = self.createSlider()
-        self.zSlider = self.createSlider()
+        self.setCentralWidget(self.glWidget)
+        self.glWidget.show()
+        self.xSlider = self.create_slider()
+        #self.ySlider = self.createSlider()
+        #self.zSlider = self.createSlider()
         self.treeView = QTreeView()
-        main_layout = QHBoxLayout()
-        main_layout.addWidget(self.glWidget)
-        #main_layout.addWidget(self.xSlider)
-        #main_layout.addWidget(self.ySlider)
-        #main_layout.addWidget(self.zSlider)
-        #main_layout.addWidget(self.treeView)
-
+        #main_layout = QHBoxLayout()
+        #main_layout.addWidget(self.glWidget)
         self.xSlider.setValue(15 * 16)
-        self.ySlider.setValue(345 * 16)
-        self.zSlider.setValue(0 * 16)
+        #self.ySlider.setValue(345 * 16)
+        #self.zSlider.setValue(0 * 16)
 
-        menu_bar = QMenuBar()
-        menu_bar.setGeometry(QRect(0, 0, 1492, 25))
-        menu_bar.setObjectName(_fromUtf8("menu_bar"))
-        menu_file = QMenu(menu_bar)
-        menu_file.setObjectName(_fromUtf8("menu_file"))
-        menu_tools = QMenu(menu_bar)
-        menu_tools.setObjectName(_fromUtf8("menu_tools"))
-        menu_help = QMenu(menu_bar)
-        menu_help.setObjectName(_fromUtf8("menu_help"))
-        self.actionAbout = QAction(self)
-        self.actionExit = QAction(self)
-        self.actionGraph = QAction(self)
-        self.actionLoad_Model = QtGui.QAction(self)
-        action_graph_widget = QtGui.QAction(self)
-        action_graph_widget.setObjectName(_fromUtf8("action_graph_widget"))
-        action_about = QtGui.QAction(self)
-        action_about.setObjectName(_fromUtf8("action_about"))
-        self.actionExit = QtGui.QAction(self)
-        self.actionExit.setShortcut('Ctrl+Q')
-        self.connect(self.actionExit, SIGNAL('triggered()'), SLOT('close()'))
-        self.connect(self.actionAbout, SIGNAL('triggered()'), SLOT('about()'))
-        self.connect(self.actionGraph, SIGNAL('triggered()'), SLOT('draw_graph()'))
-        self.connect(self.actionLoad_Model, QtCore.SIGNAL('triggered()'), self.open_file_dialog)
-        self.actionLoad_Model.setObjectName(_fromUtf8("actionLoad_Model"))
-        self.actionExit.setObjectName(_fromUtf8("actionExit"))
-        self.actionAbout.setObjectName(_fromUtf8("action_about"))
-        self.actionGraph.setObjectName(_fromUtf8("actionGraph"))
-        menu_file.addAction(self.actionLoad_Model)
-        menu_file.addAction(self.actionExit)
-        menu_tools.addAction(self.actionGraph)
-        menu_help.addAction(self.actionAbout)
-        menu_bar.addAction(menu_file.menuAction())
-        menu_bar.addAction(menu_tools.menuAction())
-        menu_bar.addAction(menu_help.menuAction())
+        exit = QtGui.QAction(self)
+        exit.setText(_translate("MainWindow", "Exit", None))
+        exit.setShortcut('Ctrl+Q')
+        self.connect(exit, QtCore.SIGNAL('triggered()'), QtCore.SLOT('close()'))
+        
+        zoom_plus_action = QtGui.QAction(self)
+        zoom_plus_action.setText(_translate("MainWindow", "Zoom +", None))
+        self.connect(zoom_plus_action, QtCore.SIGNAL('triggered()'), self.glWidget.zoom_plus)
 
-        menu_file.setTitle(_translate("MainWindow", "File", None))
-        menu_tools.setTitle(_translate("MainWindow", "Tools", None))
-        menu_help.setTitle(_translate("MainWindow", "Help", None))
-        self.actionAbout.setText(_translate("MainWindow", "About", None))
-        self.actionLoad_Model.setText(_translate("MainWindow", "Load Model", None))
-        action_graph_widget.setText(_translate("MainWindow", "Graph Widget", None))
-        action_about.setText(_translate("MainWindow", "About", None))
-        self.actionExit.setText(_translate("MainWindow", "Exit", None))
-        self.actionGraph.setText(_translate("MainWindow", "Draw Graph", None))
-        main_layout.setMenuBar(menu_bar)
+        zoom_minus_action = QtGui.QAction(self)
+        zoom_minus_action.setText(_translate("MainWindow", "Zoom -", None))
+        self.connect(zoom_minus_action, QtCore.SIGNAL('triggered()'), self.glWidget.zoom_minus)
 
-        self.setLayout(main_layout)
+        neurons_list_action = QtGui.QAction(self)
+        neurons_list_action.setText(_translate("MainWindow", "Show list of Neurons", None))
+        self.connect(neurons_list_action, QtCore.SIGNAL('triggered()'), self.create_dock_window)
 
-        self.setWindowTitle("Python NEURON work environment")
+        load_model_action = QtGui.QAction(self)
+        load_model_action.setText(_translate("MainWindow", "Load Model ...", None))
+        self.connect(load_model_action, QtCore.SIGNAL('triggered()'), self.open_file_dialog)
 
-    def createSlider(self):
-        slider = QSlider(Qt.Vertical)
+        draw_graph_action = QtGui.QAction(self)
+        draw_graph_action.setText(_translate("MainWindow", "Draw Graph ...", None))
+        self.connect(draw_graph_action, QtCore.SIGNAL('triggered()'), self.draw_graph)
+
+        about_action = QtGui.QAction(self)
+        about_action.setText(_translate("MainWindow", "About", None))
+        self.connect(about_action, QtCore.SIGNAL('triggered()'), self.about)
+
+        menu_bar = self.menuBar()
+        menu_file = menu_bar.addMenu("&File")
+        menu_view = menu_bar.addMenu("&View")
+        self.tools = menu_bar.addMenu("&Tools")
+        menu_help = menu_bar.addMenu("&Help")
+
+        menu_file.addAction(load_model_action)
+        menu_file.addAction(exit)
+        menu_view.addAction(zoom_plus_action)
+        menu_view.addAction(zoom_minus_action)
+        self.tools.addAction(draw_graph_action)
+        menu_help.addAction(about_action)
+
+        self.toolbar = self.addToolBar("ToolBar")
+        self.toolbar.addAction("Play") #(self.exit)
+        self.toolbar.addAction("Pause")
+        self.toolbar.addAction("Stop")
+        #self.toolbar.addAction(self.pause)
+
+        self.create_dock_window()
+
+        self.neurons_names()
+
+    def create_slider(self):
+        slider = QtGui.QSlider(QtCore.Qt.Vertical)
         slider.setRange(0, 360 * 16)
         slider.setSingleStep(16)
         slider.setPageStep(15 * 16)
         slider.setTickInterval(15 * 16)
         slider.setTickPosition(QSlider.TicksRight)
-
         return slider
 
-    @pyqtSlot()
+    def neurons_names(self):
+        l = 1
+        for z in nrn.neurons_names: #self.glWidget.nrn.neurons:
+            label = QtGui.QLabel(z, self.glWidget)
+            label.setAutoFillBackground(False)
+            label.setStyleSheet("background-color: rgba(128, 128, 128, 255)")
+            label.move(50, l)
+            l+=20
+
     def about(self):
         QMessageBox.about(self, "About", "This is an about box \n shown with QAction of QMenu.")
 
-    @pyqtSlot()
     def draw_graph(self):
         if self.graph_window is None:
             self.graph_window = NSGraphWidget(nrn, 400)
@@ -130,16 +134,45 @@ class NSWindow(QWidget):
         self.glWidget.look_draw()
         fileName = QtGui.QFileDialog.getOpenFileName(self, 'Open File', os.getcwd(), ("Hoc files (*.hoc)"))
         if fileName:
-            #model_fileName = fileName
-            #model_path = QFileInfo.absoluteFilePath(filePath)
-            #model_path = QtGui.QFileDialog.directory(self)
-
             load_model(fileName)
             #window = NSWindow()
             #window.show()
             #self.label.setText(filename)
             self.glWidget.update_scene(nrn)
         self.glWidget.look_draw()
+
+    def open_input_dialog(self):
+        """
+        Opens input dialog to find the name of neuron
+        """
+        text, result = QtGui.QInputDialog.getText(self, " ", "Enter the neuron's name")
+
+    def actionAbout(self):
+        QtGui.QMessageBox.about(self, "About NEURON<->Python work environment", "Here will be the information about this project...")
+
+    def create_dock_window(self):
+        dock = QtGui.QDockWidget("List of Neurons", self)
+        dock.setAllowedAreas(QtCore.Qt.RightDockWidgetArea)
+        self.neuronsList = myListWidget()
+
+        for l in nrn.neurons.keys():
+            self.neuronsList.addItem(l)
+
+        dock.setWidget(self.neuronsList)
+        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, dock)
+        #self.neuronsList.setObjectName("Neurons")
+        self.tools.addAction(dock.toggleViewAction())
+        self.neuronsList.setMaximumWidth(100)
+
+        self.neuronsList.itemClicked.connect(self.neuronsList.Clicked)
+
+
+class myListWidget(QtGui.QListWidget):
+
+    def Clicked(self, item):
+        for p, n in nrn.neurons.iteritems():
+            if (p == item.text()):
+                n.selected = not n.selected
 
 
 def load_model(model_filename='./model/_ria.hoc', tstop=400):

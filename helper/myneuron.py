@@ -7,7 +7,6 @@ __author__ = 'Serg Khayrulin'
 class SubSegment:
     def __init__(self, parent=None):
         """
-
         :type self: object
         """
         self.start_x = 0

@@ -45,7 +45,7 @@ class NSWidget(QGLWidget):
         adapted from http://www.thjsmith.com/40/cylinder-between-two-points-opengl-c
         Drawing cylinder by two point
         Algorithm:
-        1) calculate vector between end and start of section
+        1) calculate vector between end and start of segment
         2) calculate angle between Axis OZ and this vector
         3) translate System of coordinates into start position
         4) rotate on angle
@@ -185,8 +185,9 @@ class NSWidget(QGLWidget):
         self.old_y = e.y()
         if int(e.buttons()) == Qt.LeftButton:
             index = glReadPixels(e.x(),  self.height() - e.y() - 1, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_INT)
-            #print "selected object " + str(index[0][0] - 1)
+
             if index[0][0] != 0:
+                print "selected object " + str(index[0][0] - 1)
                 for k, n in self.nrn.neurons.iteritems():
                     for sec in n.section:
                         for sub_sec in sec.sub_sec:
@@ -201,9 +202,9 @@ class NSWidget(QGLWidget):
 
     def wheelEvent(self, event):
         if event.delta() > 0:
-            self.scale *= 1.1
+            self.zoom_plus()
         else:
-            self.scale /= 1.1
+            self.zoom_minus()
 
     def look_draw(self):
         self.look_draw_state = not self.look_draw_state
@@ -212,4 +213,10 @@ class NSWidget(QGLWidget):
     def update_scene(self, new_nrn):
         self.initializeGL()
         self.__init_vars(new_nrn)
+
+    def zoom_plus(self):
+        self.scale *= 1.1
+
+    def zoom_minus(self):
+        self.scale /=1.1
 
