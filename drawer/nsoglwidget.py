@@ -101,6 +101,14 @@ class NSWidget(QGLWidget):
                     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, sub_section_color)
                     glStencilFunc(GL_ALWAYS, sub_sec.index + 1, -1)
                     self.__cylinder_2p(sub_sec, 20)
+        kl = 0
+
+        for k, n in neurons.iteritems():
+            kl += 20
+            glWindowPos2i(100, 600-kl)
+            glColor(0.5, 1.0, 0.0, 1.0)
+            glutBitmapString(GLUT_BITMAP_HELVETICA_12, k)
+            glFlush()
 
     def resizeGL(self, width, height):
         """
