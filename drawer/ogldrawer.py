@@ -187,6 +187,7 @@ def load_model(model_filename='./model/_ria.hoc', tstop=400):
     if nrn != None:
         nrn.finish()
     path, filename = os.path.split(str(model_filename))
+    old_dir = os.path.abspath(os.getcwd())
     os.chdir(path)
     osplatform = sys.platform
     if osplatform.find('linux') != -1 or osplatform.find('darwin') != -1:
@@ -196,6 +197,7 @@ def load_model(model_filename='./model/_ria.hoc', tstop=400):
     print 'Current work directory is ' + os.getcwd()
     from NeuronWrapper import NrnSimulator
     nrn = NrnSimulator(filename, tstop=tstop)
+    os.chdir(old_dir)
 
 
 def run_window():

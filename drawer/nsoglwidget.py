@@ -93,11 +93,11 @@ class NSWidget(QGLWidget):
             for sec in n.sections:
                 for sub_sec in sec.sub_sections:
                     sub_section_color = self.neuron_color
+                    vol = math.fabs(sub_sec.get_param('v')[0])
                     if sub_sec.selected:
                         sub_section_color = (0.7, 0.7, 0.0, 0.1)
-                    #sub_segment_color = (sub_segment_color[0] * math.fabs(sub_sec.get_param('v')[0]), sub_segment_color[1] *
-                    #                     math.fabs(sub_sec.get_param('v')[0]), sub_segment_color[2] * math.fabs(sub_sec.get_param('v')[0]),
-                    #                     0.1)
+                        #print sub_sec.get_param('v')[0]
+                    sub_section_color = (sub_section_color[0] * vol, sub_section_color[1] * vol, sub_section_color[2] * vol, 0.1)
                     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, sub_section_color)
                     glStencilFunc(GL_ALWAYS, sub_sec.index + 1, -1)
                     self.__cylinder_2p(sub_sec, 20)

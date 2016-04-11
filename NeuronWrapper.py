@@ -1,7 +1,7 @@
 import sys
 import os.path
 
-from neuron import h
+
 #from neuron import gui TODO remove this than
 from helper.myneuron import MyNeuron
 
@@ -14,7 +14,6 @@ i_syn = 'i_syn'
 t = 't'
 paramVec = [v]
 
-h.load_file("stdrun.hoc")
 
 
 class NrnSimulator:
@@ -28,6 +27,9 @@ class NrnSimulator:
             if not (os.path.isfile(model_name)):
                 raise AttributeError(
                     u"File: {0:s} doesn't exist please check the path to the file or name of file".format(model_name))
+            from neuron import h
+            h.finitialize()
+            h.load_file("stdrun.hoc")
             h.load_file(1, model_name) # http://www.neuron.yale.edu/neuron/static/new_doc/programming/dynamiccode.html#
             h.init()
             h.tstop = tstop
@@ -56,6 +58,7 @@ class NrnSimulator:
         """
         Make one step of NEURON simulation
         """
+        from neuron import h
         if h.t < h.tstop:
             h.advance()
             self.__update_data()
@@ -67,6 +70,7 @@ class NrnSimulator:
         """
         Search neurons names from hoc segment name
         """
+        from neuron import h
         for h_sec in h.allsec():
             section_name = h_sec.name()
             index = section_name.find('_')
@@ -74,6 +78,7 @@ class NrnSimulator:
                 self.neurons_names.append(section_name[0:index])
 
     def get_time(self):
+        from neuron import h
         return h.t
 
     def __index_sub_segments(self):
@@ -92,5 +97,4 @@ class NrnSimulator:
         """
         Do nothing yet
         """
-        #h.close()
         pass
