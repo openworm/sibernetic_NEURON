@@ -69,9 +69,9 @@ class Section:
         """
         for p in params:
             if p in m_s.params:
-                m_s.params[p] = (self.h_sec(m_s.params[p][1])._ref_v[0], m_s.params[p][1])
+                m_s.params[p][0] = self.h_sec(m_s.params[p][1])._ref_v[0]
             elif n != -1:
-                m_s.params[p] = (self.h_sec(n)._ref_v[0], n)
+                m_s.params[p] = [self.h_sec(n)._ref_v[0], n]
             else:
                 raise RuntimeError('Problem with initalization')
             # TODO find mode suitable way how to do it

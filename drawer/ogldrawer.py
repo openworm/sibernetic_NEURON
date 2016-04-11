@@ -210,7 +210,7 @@ def run_window():
     """
     Run main Qt windsudo apt-get install python-qt4ow
     """
-    load_model()#model_filename='./model/avm.hoc')
+    load_model(model_filename='./model/avm.hoc')
     #load_model()
     app = QApplication(["Neuron<->Python interactive work environment"])
     window = NSWindow()

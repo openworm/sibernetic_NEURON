@@ -43,7 +43,7 @@ class NSWidget(QGLWidget):
     def __cylinder_2p(self, s, dim):
         """
         adapted from http://www.thjsmith.com/40/cylinder-between-two-points-opengl-c
-        Drawing cylinder by two point
+        Drawing cylinder by two points
         Algorithm:
         1) calculate vector between end and start of segment
         2) calculate angle between Axis OZ and this vector
@@ -97,7 +97,8 @@ class NSWidget(QGLWidget):
                     if sub_sec.selected:
                         sub_section_color = (0.7, 0.7, 0.0, 0.1)
                         #print sub_sec.get_param('v')[0]
-                    sub_section_color = (sub_section_color[0] * vol, sub_section_color[1] * vol, sub_section_color[2] * vol, 0.1)
+                    if sub_sec.get_param('v')[0] > -40.0:
+                        sub_section_color = (sub_section_color[0] * sub_sec.get_param('v')[0], sub_section_color[1], sub_section_color[2], 0.1)
                     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, sub_section_color)
                     glStencilFunc(GL_ALWAYS, sub_sec.index + 1, -1)
                     self.__cylinder_2p(sub_sec, 20)
@@ -108,7 +109,7 @@ class NSWidget(QGLWidget):
             glWindowPos2i(100, 600-kl)
             glColor(0.5, 1.0, 0.0, 1.0)
             glutBitmapString(GLUT_BITMAP_HELVETICA_12, k)
-            glFlush()
+        glFlush()
 
     def resizeGL(self, width, height):
         """

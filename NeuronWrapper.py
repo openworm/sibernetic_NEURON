@@ -41,7 +41,7 @@ class NrnSimulator:
                 raise RuntimeError(u"In File: {0:s} with model no any neurons has been found please check the "
                                    u"the file".format(model_name))
             print self.neurons_names
-            for name in self.neurons_names:
+            for name in self.neurons_names: #TODO put check that we haven't added this neuron yet in dictionary neurons
                 self.neurons[name] = MyNeuron(name, index=self.neurons_names.index(name))
             # Initialization of segments and data arrays
             for k, val in self.neurons.iteritems():
