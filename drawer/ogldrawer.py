@@ -96,7 +96,7 @@ class NSWindow(QtGui.QMainWindow):
 
         self.create_dock_window()
 
-        self.neurons_names()
+        #self.neurons_names()
 
     def create_slider(self):
         slider = QtGui.QSlider(QtCore.Qt.Vertical)
@@ -115,9 +115,6 @@ class NSWindow(QtGui.QMainWindow):
             label.setStyleSheet("background-color: rgba(128, 128, 128, 255)")
             label.move(50, l)
             l+=20
-
-    def about(self):
-        QMessageBox.about(self, "About", "This is an about box \n shown with QAction of QMenu.")
 
     def draw_graph(self):
         if self.graph_window is None:
@@ -147,8 +144,17 @@ class NSWindow(QtGui.QMainWindow):
         """
         text, result = QtGui.QInputDialog.getText(self, " ", "Enter the neuron's name")
 
-    def actionAbout(self):
-        QtGui.QMessageBox.about(self, "About NEURON<->Python work environment", "Here will be the information about this project...")
+    def about(self):
+        QtGui.QMessageBox.about(self, "About NEURON<->Python work environment",
+                                "Sibernetic-NEURON using python-NEURON interface "
+                                "for interraction with NEURON simulator. Script is "
+                                "using model from *.hoc file (stored in model folder) "
+                                "which is loading into NEURON and then run. OpenGL is "
+                                "used for drawing results of simulation on the screen "
+                                "on scene. Results are represented as 3D model showing "
+                                "model you can rotate or scale it. The red color of "
+                                "segment indicates changes of voltage in this segment. "
+                                "Brightness depends on value of voltage in the current moment.")
 
     def create_dock_window(self):
         dock = QtGui.QDockWidget("List of Neurons", self)
