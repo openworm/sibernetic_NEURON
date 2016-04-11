@@ -6,6 +6,7 @@ from graphwidget import NSGraphWidget
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
+from neuron import h
 
 
 try:
@@ -73,7 +74,7 @@ class NSWindow(QtGui.QMainWindow):
 
         about_action = QtGui.QAction(self)
         about_action.setText(_translate("MainWindow", "About", None))
-        self.connect(about_action, QtCore.SIGNAL('triggered()'), self.about)
+        self.connect(about_action, QtCore.SIGNAL('triggered()'), self.actionAbout)
 
         menu_bar = self.menuBar()
         menu_file = menu_bar.addMenu("&File")
@@ -88,15 +89,34 @@ class NSWindow(QtGui.QMainWindow):
         self.tools.addAction(draw_graph_action)
         menu_help.addAction(about_action)
 
-        self.toolbar = self.addToolBar("ToolBar")
-        self.toolbar.addAction("Play") #(self.exit)
-        self.toolbar.addAction("Pause")
-        self.toolbar.addAction("Stop")
-        #self.toolbar.addAction(self.pause)
+        myToolbar = QtGui.QToolBar()
+        self.addToolBar(Qt.BottomToolBarArea, myToolbar)
+
+        pause_action = QtGui.QAction("Pause", self)
+        self.connect(pause_action, QtCore.SIGNAL('triggered()'), self.actionPause)
+
+        play_action = QtGui.QAction("Play", self)
+        self.connect(pause_action, QtCore.SIGNAL('triggered()'), self.actionPlay)
+
+        stop_action = QtGui.QAction("Stop", self)
+        self.connect(pause_action, QtCore.SIGNAL('triggered()'), self.actionStop)
+
+        myToolbar.addAction(pause_action)
+        myToolbar.addAction(play_action)
+        myToolbar.addAction(stop_action)
 
         self.create_dock_window()
 
         #self.neurons_names()
+
+    def actionPause(self):
+        pass
+
+    def actionPlay(self):
+        pass
+
+    def actionStop(self):
+        pass
 
     def create_slider(self):
         slider = QtGui.QSlider(QtCore.Qt.Vertical)
@@ -144,7 +164,7 @@ class NSWindow(QtGui.QMainWindow):
         """
         text, result = QtGui.QInputDialog.getText(self, " ", "Enter the neuron's name")
 
-    def about(self):
+    def actionAbout(self):
         QtGui.QMessageBox.about(self, "About NEURON<->Python work environment",
                                 "Sibernetic-NEURON using python-NEURON interface "
                                 "for interraction with NEURON simulator. Script is "
@@ -154,7 +174,8 @@ class NSWindow(QtGui.QMainWindow):
                                 "on scene. Results are represented as 3D model showing "
                                 "model you can rotate or scale it. The red color of "
                                 "segment indicates changes of voltage in this segment. "
-                                "Brightness depends on value of voltage in the current moment.")
+                                "Brightness depends on value of voltage in the current "
+                                "moment.")
 
     def create_dock_window(self):
         dock = QtGui.QDockWidget("List of Neurons", self)
