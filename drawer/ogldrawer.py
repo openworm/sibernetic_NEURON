@@ -89,34 +89,17 @@ class NSWindow(QtGui.QMainWindow):
         self.tools.addAction(draw_graph_action)
         menu_help.addAction(about_action)
 
-        myToolbar = QtGui.QToolBar()
-        self.addToolBar(Qt.BottomToolBarArea, myToolbar)
-
-        pause_action = QtGui.QAction("Pause", self)
-        self.connect(pause_action, QtCore.SIGNAL('triggered()'), self.actionPause)
-
-        play_action = QtGui.QAction("Play", self)
-        self.connect(pause_action, QtCore.SIGNAL('triggered()'), self.actionPlay)
-
-        stop_action = QtGui.QAction("Stop", self)
-        self.connect(pause_action, QtCore.SIGNAL('triggered()'), self.actionStop)
-
-        myToolbar.addAction(pause_action)
-        myToolbar.addAction(play_action)
-        myToolbar.addAction(stop_action)
-
         self.create_dock_window()
+        self.create_toolbar()
+        self.statusBar().setVisible(True)
+
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.print_time)
+        self.timer.start(0)
+
+        #self.print_time()
 
         #self.neurons_names()
-
-    def actionPause(self):
-        pass
-
-    def actionPlay(self):
-        pass
-
-    def actionStop(self):
-        pass
 
     def create_slider(self):
         slider = QtGui.QSlider(QtCore.Qt.Vertical)
@@ -135,6 +118,37 @@ class NSWindow(QtGui.QMainWindow):
             label.setStyleSheet("background-color: rgba(128, 128, 128, 255)")
             label.move(50, l)
             l+=20
+
+    def create_toolbar(self):
+        self.myToolbar = QtGui.QToolBar("ToolBar")
+        self.addToolBar(Qt.BottomToolBarArea, self.myToolbar)
+
+        left_spacer = QtGui.QWidget()
+        left_spacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        right_spacer = QtGui.QWidget()
+        right_spacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        self.myToolbar.addWidget(left_spacer)
+
+        self.pause_action = QtGui.QAction(QtGui.QIcon('drawer/pause.png'), "Pause simulation", self)
+        self.connect(self.pause_action, QtCore.SIGNAL('triggered()'), self.action_Pause)
+
+        stop_action = QtGui.QAction(QtGui.QIcon('drawer/stop.png'), "Stop simulation", self)
+        self.connect(stop_action, QtCore.SIGNAL('triggered()'), QtCore.SLOT('close()'))
+
+        self.myToolbar.addAction(self.pause_action)
+        self.myToolbar.addAction(stop_action)
+
+        self.myToolbar.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
+
+        self.myToolbar.addWidget(right_spacer)
+
+    def action_Pause(self):
+        #self.pause_action.setStyleSheet("background-color: rgba(128, 128, 150, 255)")
+        self.glWidget.actionPause()
+
+    def print_time(self):
+        time = "%.3f" % nrn.get_time()
+        self.statusBar().showMessage("Current time of simulation:        " + str(time))
 
     def draw_graph(self):
         if self.graph_window is None:
@@ -231,7 +245,7 @@ def run_window():
     """
     Run main Qt windsudo apt-get install python-qt4ow
     """
-    load_model(model_filename='./model/avm.hoc')
+    load_model()#(model_filename='./model/avm.hoc')
     #load_model()
     app = QApplication(["Neuron<->Python interactive work environment"])
     window = NSWindow()

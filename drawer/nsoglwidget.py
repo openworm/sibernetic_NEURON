@@ -17,6 +17,7 @@ class NSWidget(QGLWidget):
         self.setMouseTracking(True)
         self.__init_vars(nrn)
         self.look_draw_state = False
+        self.ifPause = False
 
     def __init_vars(self, nrn):
         """
@@ -135,6 +136,7 @@ class NSWidget(QGLWidget):
         '''
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
+        #print glGetFloatv(GL_DEPTH_RANGE)
 
         for c in range(3):
             self.cameraTransLag[c] += self.cameraTrans[c] - self.cameraTransLag[c]
@@ -147,8 +149,10 @@ class NSWidget(QGLWidget):
     def __update_data(self):
         if self.look_draw_state:
             return
-        self.nrn.one_step()
         self.updateGL()
+        if self.ifPause == True:
+            return
+        self.nrn.one_step()
 
     def initializeGL(self):
         self.timer = QTimer(self)
@@ -169,6 +173,10 @@ class NSWidget(QGLWidget):
         y = mouseEvent.y()
         dx = float(x - self.old_x)
         dy = float(y - self.old_y)
+
+        if self.ifPause:
+            return
+
         if int(mouseEvent.buttons()) == Qt.LeftButton:
             self.cameraRot[0] += dy / 5.0
             self.cameraRot[1] += dx / 5.0
@@ -209,6 +217,8 @@ class NSWidget(QGLWidget):
                                 return
 
     def wheelEvent(self, event):
+        if self.ifPause:
+            return
         if event.delta() > 0:
             self.zoom_plus()
         else:
@@ -223,8 +233,16 @@ class NSWidget(QGLWidget):
         self.__init_vars(new_nrn)
 
     def zoom_plus(self):
+        if self.ifPause:
+            return
         self.scale *= 1.1
 
     def zoom_minus(self):
+        if self.ifPause:
+            return
         self.scale /=1.1
+
+    def actionPause(self):
+        self.ifPause = not self.ifPause
+        print self.ifPause
 
