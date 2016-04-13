@@ -33,9 +33,9 @@ class NSWidget(QGLWidget):
         self.light_pos = (1.0, 1.0, -2.0)
         # init NEURON SIMULATOR
         self.nrn = nrn
-        self.cameraTrans = [0, 0, -1.0]
+        self.cameraTrans = [-0.4, 0.0, -1.0]
         self.cameraRot = [0] * 3
-        self.cameraTransLag = [0, 0, -1.0]
+        self.cameraTransLag = [-0.4, 0.0, -1.0]
         self.cameraRotLag = [0] * 3
         self.model_view = [0] * 16
         self.scale = 0.01
@@ -148,7 +148,7 @@ class NSWidget(QGLWidget):
         print self.aspect
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        gluPerspective(55.0, self.aspect, 0.1, 10.0)
+        gluPerspective(50.0, self.aspect, 0.1, 100.0)
 
         #glMatrixMode(GL_MODELVIEW)
         #glLoadIdentity()
