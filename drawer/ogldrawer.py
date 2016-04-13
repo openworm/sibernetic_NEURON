@@ -6,6 +6,7 @@ from graphwidget import NSGraphWidget
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
+from neuron import h
 
 
 try:
@@ -73,7 +74,7 @@ class NSWindow(QtGui.QMainWindow):
 
         about_action = QtGui.QAction(self)
         about_action.setText(_translate("MainWindow", "About", None))
-        self.connect(about_action, QtCore.SIGNAL('triggered()'), self.about)
+        self.connect(about_action, QtCore.SIGNAL('triggered()'), self.actionAbout)
 
         menu_bar = self.menuBar()
         menu_file = menu_bar.addMenu("&File")
@@ -88,13 +89,15 @@ class NSWindow(QtGui.QMainWindow):
         self.tools.addAction(draw_graph_action)
         menu_help.addAction(about_action)
 
-        self.toolbar = self.addToolBar("ToolBar")
-        self.toolbar.addAction("Play") #(self.exit)
-        self.toolbar.addAction("Pause")
-        self.toolbar.addAction("Stop")
-        #self.toolbar.addAction(self.pause)
-
         self.create_dock_window()
+        self.create_toolbar()
+        self.statusBar().setVisible(True)
+
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.print_time)
+        self.timer.start(0)
+
+        #self.print_time()
 
         #self.neurons_names()
 
@@ -115,6 +118,41 @@ class NSWindow(QtGui.QMainWindow):
             label.setStyleSheet("background-color: rgba(128, 128, 128, 255)")
             label.move(50, l)
             l+=20
+
+    def create_toolbar(self):
+        self.myToolbar = QtGui.QToolBar("ToolBar")
+        self.addToolBar(Qt.BottomToolBarArea, self.myToolbar)
+
+        left_spacer = QtGui.QWidget()
+        left_spacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        right_spacer = QtGui.QWidget()
+        right_spacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        self.myToolbar.addWidget(left_spacer)
+
+        self.pause_action = QtGui.QAction(QtGui.QIcon('drawer/pause.png'), "Pause simulation", self)
+        self.connect(self.pause_action, QtCore.SIGNAL('triggered()'), self.action_Pause)
+
+        stop_action = QtGui.QAction(QtGui.QIcon('drawer/stop.png'), "Stop simulation", self)
+        self.connect(stop_action, QtCore.SIGNAL('triggered()'), QtCore.SLOT('close()'))
+
+        self.myToolbar.addSeparator()
+        self.myToolbar.addAction(self.pause_action)
+        self.myToolbar.addSeparator()
+        self.myToolbar.addAction(stop_action)
+        self.myToolbar.addSeparator()
+
+        self.myToolbar.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
+
+        self.myToolbar.addWidget(right_spacer)
+        self.tools.addAction(self.myToolbar.toggleViewAction())
+
+    def action_Pause(self):
+        #self.myToolbar.setStyleSheet("self.pause_action.QToolButton {background-color: rgba(128, 128, 130, 255)}")
+        self.glWidget.actionPause()
+
+    def print_time(self):
+        time = "%.3f" % nrn.get_time()
+        self.statusBar().showMessage("Current time of simulation:        " + str(time))
 
     def draw_graph(self):
         if self.graph_window is None:
@@ -144,7 +182,7 @@ class NSWindow(QtGui.QMainWindow):
         """
         text, result = QtGui.QInputDialog.getText(self, " ", "Enter the neuron's name")
 
-    def about(self):
+    def actionAbout(self):
         QtGui.QMessageBox.about(self, "About NEURON<->Python work environment",
                                 "Sibernetic-NEURON using python-NEURON interface "
                                 "for interraction with NEURON simulator. Script is "
@@ -154,7 +192,8 @@ class NSWindow(QtGui.QMainWindow):
                                 "on scene. Results are represented as 3D model showing "
                                 "model you can rotate or scale it. The red color of "
                                 "segment indicates changes of voltage in this segment. "
-                                "Brightness depends on value of voltage in the current moment.")
+                                "Brightness depends on value of voltage in the current "
+                                "moment.")
 
     def create_dock_window(self):
         dock = QtGui.QDockWidget("List of Neurons", self)
@@ -210,7 +249,7 @@ def run_window():
     """
     Run main Qt windsudo apt-get install python-qt4ow
     """
-    load_model(model_filename='./model/avm.hoc')
+    load_model()#(model_filename='./model/avm.hoc')
     #load_model()
     app = QApplication(["Neuron<->Python interactive work environment"])
     window = NSWindow()
