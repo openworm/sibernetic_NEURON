@@ -97,12 +97,10 @@ class MyNeuron:
         :param h: hocObject
         :param params: list of parameters which we wanna track
         """
-        pattern = '^' + self.name + '_.*'
-        nrn_pattern = re.compile(pattern)
         index = 0
         for h_sec in h.allsec():
             section_name = h_sec.name()
-            if not (nrn_pattern.search(section_name) is None):
+            if section_name.startswith(self.name):
                 s = Section(index, section_name, self)
                 s.init_section(h, params)
                 self.sections.append(s)

@@ -12,6 +12,7 @@ from matplotlib.backends import qt4_compat
 use_pyside = qt4_compat.QT_API == qt4_compat.QT_API_PYSIDE
 
 import matplotlib.animation as animation
+import math
 
 if use_pyside:
     from PySide.QtCore import *
@@ -64,14 +65,18 @@ class NSGraphWidget(QWidget):
         if y[0] >= ymax:
             self.axes.set_ylim(xmin, 2*ymax)
             self.axes.figure.canvas.draw()
-        for i in range(len(self.ydata[0])):
+        for i in xrange(len(self.ydata[-1])):
+            if i == len(self.ydata[-1]) - 1 and i + 1 < len(self.lines):
+                self.lines.pop(i)
+                break
             res = []
-            for j in range(len(self.ydata)):
-                res.append(self.ydata[j][i])
+            for j in xrange(len(self.ydata)):
+                if i < len(self.ydata[j]):
+                    res.append(self.ydata[j][i])
             if i >= len(self.lines):
-                line, = self.axes.plot([], [], lw=2)
+                line, = self.axes.plot([], [], lw=1)
                 self.lines.append(line)
-            self.lines[i].set_data(self.xdata, res)
+            self.lines[i].set_data(self.xdata[len(self.xdata) - len(res):], res)
         return self.lines
 
     def on_draw(self):
