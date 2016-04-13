@@ -135,15 +135,19 @@ class NSWindow(QtGui.QMainWindow):
         stop_action = QtGui.QAction(QtGui.QIcon('drawer/stop.png'), "Stop simulation", self)
         self.connect(stop_action, QtCore.SIGNAL('triggered()'), QtCore.SLOT('close()'))
 
+        self.myToolbar.addSeparator()
         self.myToolbar.addAction(self.pause_action)
+        self.myToolbar.addSeparator()
         self.myToolbar.addAction(stop_action)
+        self.myToolbar.addSeparator()
 
         self.myToolbar.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
 
         self.myToolbar.addWidget(right_spacer)
+        self.tools.addAction(self.myToolbar.toggleViewAction())
 
     def action_Pause(self):
-        #self.pause_action.setStyleSheet("background-color: rgba(128, 128, 150, 255)")
+        #self.myToolbar.setStyleSheet("self.pause_action.QToolButton {background-color: rgba(128, 128, 130, 255)}")
         self.glWidget.actionPause()
 
     def print_time(self):

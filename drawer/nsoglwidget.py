@@ -1,4 +1,5 @@
 from OpenGL.GL import *
+from OpenGL.GLU import *
 from OpenGL.GLUT import *
 from OpenGL.GLUT.freeglut import *
 from PyQt4.QtCore import *
@@ -80,6 +81,14 @@ class NSWidget(QGLWidget):
         glClearStencil(0)
         glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT| GL_STENCIL_BUFFER_BIT)
 
+        #glPopMatrix()
+        #glMatrixMode(GL_MODELVIEW)
+        #glLoadIdentity()
+        #glMatrixMode(GL_PROJECTION)
+        #glLoadIdentity()
+        #gluPerspective(50, 50, 50, 0)
+        #glPushMatrix()
+
         neurons = self.nrn.neurons
         self.light_pos = (1.0 * self.scale, 1.0 * self.scale, -2.0 * self.scale)
         glLightfv(GL_LIGHT0, GL_POSITION, self.light_pos)  # light is ratating with objects
@@ -134,9 +143,15 @@ class NSWidget(QGLWidget):
         else:
             glFrustum(-1, 1, -1/aspectRatio, 1/aspectRatio, 3, 45)
         '''
-        glMatrixMode(GL_MODELVIEW)
+
+        self.aspect = float(width) / float(height)
+        print self.aspect
+        glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        #print glGetFloatv(GL_DEPTH_RANGE)
+        gluPerspective(55.0, self.aspect, 0.1, 10.0)
+
+        #glMatrixMode(GL_MODELVIEW)
+        #glLoadIdentity()
 
         for c in range(3):
             self.cameraTransLag[c] += self.cameraTrans[c] - self.cameraTransLag[c]
