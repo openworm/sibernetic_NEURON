@@ -97,8 +97,6 @@ class NSWindow(QtGui.QMainWindow):
         self.timer.timeout.connect(self.print_time)
         self.timer.start(0)
 
-        #self.print_time()
-
         #self.neurons_names()
 
     def create_slider(self):
@@ -129,10 +127,10 @@ class NSWindow(QtGui.QMainWindow):
         right_spacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         self.myToolbar.addWidget(left_spacer)
 
-        self.pause_action = QtGui.QAction(QtGui.QIcon('drawer/pause.png'), "Pause simulation", self)
+        self.pause_action = QtGui.QAction(QtGui.QIcon('drawer/icons/pause.png'), "Pause simulation", self)
         self.connect(self.pause_action, QtCore.SIGNAL('triggered()'), self.action_Pause)
 
-        stop_action = QtGui.QAction(QtGui.QIcon('drawer/stop.png'), "Stop simulation", self)
+        stop_action = QtGui.QAction(QtGui.QIcon('drawer/icons/stop.png'), "Stop simulation", self)
         self.connect(stop_action, QtCore.SIGNAL('triggered()'), QtCore.SLOT('close()'))
 
         self.myToolbar.addSeparator()

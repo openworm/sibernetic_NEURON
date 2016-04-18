@@ -19,6 +19,7 @@ class NSWidget(QGLWidget):
         self.__init_vars(nrn)
         self.look_draw_state = False
         self.ifPause = False
+        #self.mouseMoved = False
 
     def __init_vars(self, nrn):
         """
@@ -33,9 +34,9 @@ class NSWidget(QGLWidget):
         self.light_pos = (1.0, 1.0, -2.0)
         # init NEURON SIMULATOR
         self.nrn = nrn
-        self.cameraTrans = [0, 0, -1.0]
+        self.cameraTrans = [-0.4, 0.0, -2.0]
         self.cameraRot = [0] * 3
-        self.cameraTransLag = [0, 0, -1.0]
+        self.cameraTransLag = [-0.4, 0.0, -2.0]
         self.cameraRotLag = [0] * 3
         self.model_view = [0] * 16
         self.scale = 0.01
@@ -72,7 +73,12 @@ class NSWidget(QGLWidget):
             angle = -angle
         glRotatef(angle, ax[0], ax[1], ax[2])
         glutSolidCylinder(s.diam / diam_scale, l, dim, dim)
+
+        #glEnable(GL_LIGHTING)
+        #glEnable(GL_LIGHT0)
+        #glLightfv(GL_LIGHT0, GL_POSITION, self.light_pos)
         glPopMatrix()
+
 
     def paintGL(self):
         """
@@ -81,19 +87,12 @@ class NSWidget(QGLWidget):
         glClearStencil(0)
         glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT| GL_STENCIL_BUFFER_BIT)
 
-        #glPopMatrix()
-        #glMatrixMode(GL_MODELVIEW)
-        #glLoadIdentity()
-        #glMatrixMode(GL_PROJECTION)
-        #glLoadIdentity()
-        #gluPerspective(50, 50, 50, 0)
-        #glPushMatrix()
-
         neurons = self.nrn.neurons
         self.light_pos = (1.0 * self.scale, 1.0 * self.scale, -2.0 * self.scale)
         glLightfv(GL_LIGHT0, GL_POSITION, self.light_pos)  # light is ratating with objects
-        glEnable(GL_STENCIL_TEST)
-        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE)
+
+
+
         # Draw all neurons
         for k, n in neurons.iteritems():
             if n.selected:
@@ -133,7 +132,9 @@ class NSWidget(QGLWidget):
             width = 1
 
         glViewport(0, 0, width, height)
-        glDepthRangef(-1.0, 1.0)
+        glOrtho(0, width, 0, height, -1, 1)
+        #glDepthRangef(-1.0, 1.0)
+
         '''
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
@@ -145,21 +146,23 @@ class NSWidget(QGLWidget):
         '''
 
         self.aspect = float(width) / float(height)
-        print self.aspect
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        gluPerspective(55.0, self.aspect, 0.1, 10.0)
+        gluPerspective(55.0, self.aspect, 0.1, 100.0)
 
-        #glMatrixMode(GL_MODELVIEW)
-        #glLoadIdentity()
+        glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT| GL_STENCIL_BUFFER_BIT)
 
-        for c in range(3):
-            self.cameraTransLag[c] += self.cameraTrans[c] - self.cameraTransLag[c]
-            self.cameraRotLag[c] += self.cameraRot[c] - self.cameraRotLag[c]
-        glTranslatef(self.cameraTransLag[0], self.cameraTransLag[1], self.cameraTransLag[2])
-        glRotatef(self.cameraRotLag[0], 1.0, 0.0, 0.0)
-        glRotatef(self.cameraRotLag[1], 0.0, 1.0, 0.0)
-        self.model_view = glGetFloatv(GL_MODELVIEW_MATRIX)
+        glMatrixMode(GL_MODELVIEW)
+        glLoadIdentity()
+
+        #for c in range(3):
+        #    self.cameraTransLag[c] += self.cameraTrans[c] - self.cameraTransLag[c]
+        #    self.cameraRotLag[c] += self.cameraRot[c] - self.cameraRotLag[c]
+        #    #print self.cameraRotLag[c]
+        #glTranslatef(self.cameraTransLag[0], self.cameraTransLag[1], self.cameraTransLag[2])
+        #glRotatef(self.cameraRotLag[0], 1.0, 0.0, 0.0)
+        #glRotatef(self.cameraRotLag[1], 0.0, 1.0, 0.0)
+        #self.model_view = glGetFloatv(GL_MODELVIEW_MATRIX)
 
     def __update_data(self):
         if self.look_draw_state:
@@ -172,10 +175,20 @@ class NSWidget(QGLWidget):
     def initializeGL(self):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.__update_data)
+
         glEnable(GL_LIGHTING)
         glEnable(GL_LIGHT0)
         glLightfv(GL_LIGHT0, GL_POSITION, self.light_pos)
+
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glClearColor(0.5, 0.5, 0.5, 1.0)
+
+        glEnable(GL_STENCIL_TEST)
+        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE)
+
+        glClearDepth(1.0)
+        glEnable(GL_DEPTH_TEST)
+        glDepthFunc(GL_LEQUAL)
         self.timer.start(0)
 
     def mouseMoveEvent(self, mouseEvent):
@@ -189,8 +202,7 @@ class NSWidget(QGLWidget):
         dx = float(x - self.old_x)
         dy = float(y - self.old_y)
 
-        if self.ifPause:
-            return
+        #self.mouseMoved = True
 
         if int(mouseEvent.buttons()) == Qt.LeftButton:
             self.cameraRot[0] += dy / 5.0
@@ -212,10 +224,12 @@ class NSWidget(QGLWidget):
         glRotatef(self.cameraRotLag[1], 0.0, 1.0, 0.0)
         self.model_view = glGetFloatv(GL_MODELVIEW_MATRIX)
 
-    def mousePressEvent(self, e):
+        #self.mouseMoved = False
+
+    def mouseDoubleClickEvent(self, e): #mousePressEvent
         self.old_x = e.x()
         self.old_y = e.y()
-        if int(e.buttons()) == Qt.LeftButton:
+        if int(e.buttons()) == Qt.LeftButton: #& self.mouseMoved == False:
             index = glReadPixels(e.x(),  self.height() - e.y() - 1, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_INT)
             if index[0][0] != 0:
                 #print "selected object " + str(index[0][0] - 1)
@@ -232,8 +246,6 @@ class NSWidget(QGLWidget):
                                 return
 
     def wheelEvent(self, event):
-        if self.ifPause:
-            return
         if event.delta() > 0:
             self.zoom_plus()
         else:
@@ -248,13 +260,9 @@ class NSWidget(QGLWidget):
         self.__init_vars(new_nrn)
 
     def zoom_plus(self):
-        if self.ifPause:
-            return
         self.scale *= 1.1
 
     def zoom_minus(self):
-        if self.ifPause:
-            return
         self.scale /=1.1
 
     def actionPause(self):
