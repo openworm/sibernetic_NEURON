@@ -19,7 +19,6 @@ class NSWidget(QGLWidget):
         self.__init_vars(nrn)
         self.look_draw_state = False
         self.ifPause = False
-        #self.mouseMoved = False
 
     def __init_vars(self, nrn):
         """
@@ -30,8 +29,8 @@ class NSWidget(QGLWidget):
         self.x_rot = 0.0
         self.y_rot = 0.0
         self.ambient = (1.0, 1.0, 1.0, 1)
-        self.neuron_color = (0.1, 0.1, 0.1, 0.8)
-        self.light_pos = (1.0, 1.0, -2.0)
+        self.neuron_color = (0.1, 0.1, 0.1, 0.1)
+        self.light_pos = (0.0, 0.0, 1.0)
         # init NEURON SIMULATOR
         self.nrn = nrn
         self.cameraTrans = [-0.4, 0.0, -2.0]
@@ -88,26 +87,27 @@ class NSWidget(QGLWidget):
         glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT| GL_STENCIL_BUFFER_BIT)
 
         neurons = self.nrn.neurons
-        self.light_pos = (1.0 * self.scale, 1.0 * self.scale, -2.0 * self.scale)
-        glLightfv(GL_LIGHT0, GL_POSITION, self.light_pos)  # light is ratating with objects
-
-
+        #self.light_pos = (0.0 * self.scale, 0.0 * self.scale, 1.0 * self.scale)
+        #glLightfv(GL_LIGHT0, GL_POSITION, self.light_pos)  # light is rotating with objects
 
         # Draw all neurons
         for k, n in neurons.iteritems():
             if n.selected:
-                self.neuron_color = (0.0, 0.5, 0.5, 0.1)
+                self.neuron_color = (0.0, 0.5, 0.5, 0.1) #(0.1, 0.8, 0.0, 0.1) (0.0, 1.0, 1.0, 0.3) #(0.0, 0.5, 0.5, 0.1)
             else:
                 self.neuron_color = (0.1, 0.1, 0.1, 0.1)
             for sec in n.sections:
                 for sub_sec in sec.sub_sections:
                     sub_section_color = self.neuron_color
                     vol = math.fabs(sub_sec.get_param('v')[0])
-                    if sub_sec.selected:
-                        sub_section_color = (0.7, 0.7, 0.0, 0.1)
-                        #print sub_sec.get_param('v')[0]
+                    #if sub_sec.selected:
+                    #    sub_section_color = (0.7, 0.6, 0.0, 0.1)
+                    #    print sub_sec.get_param('v')[0]
                     if sub_sec.get_param('v')[0] > -40.0:
-                        sub_section_color = (sub_section_color[0] * sub_sec.get_param('v')[0], sub_section_color[1], sub_section_color[2], 0.1)
+                        sub_section_color = (1 * 0.02 *(sub_sec.get_param('v')[0] + 40), 0.0, 0.0, 0.1)
+                        #sub_section_color = (sub_section_color[0] * 0.2 *(sub_sec.get_param('v')[0] + 40), sub_section_color[1], sub_section_color[2], 0.1)
+                    elif sub_sec.selected:
+                        sub_section_color = (0.7, 0.6, 0.0, 0.1)
                     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, sub_section_color)
                     glStencilFunc(GL_ALWAYS, sub_sec.index + 1, -1)
                     self.__cylinder_2p(sub_sec, 20)
@@ -202,8 +202,6 @@ class NSWidget(QGLWidget):
         dx = float(x - self.old_x)
         dy = float(y - self.old_y)
 
-        #self.mouseMoved = True
-
         if int(mouseEvent.buttons()) == Qt.LeftButton:
             self.cameraRot[0] += dy / 5.0
             self.cameraRot[1] += dx / 5.0
@@ -224,7 +222,6 @@ class NSWidget(QGLWidget):
         glRotatef(self.cameraRotLag[1], 0.0, 1.0, 0.0)
         self.model_view = glGetFloatv(GL_MODELVIEW_MATRIX)
 
-        #self.mouseMoved = False
 
     def mouseDoubleClickEvent(self, e): #mousePressEvent
         self.old_x = e.x()

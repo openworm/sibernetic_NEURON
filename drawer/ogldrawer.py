@@ -245,7 +245,7 @@ def load_model(model_filename='./model/_ria.hoc', tstop=400):
 
 def run_window():
     """
-    Run main Qt windsudo apt-get install python-qt4ow
+    Run main Qt window (sudo apt-get install python-qt4ow)
     """
     load_model()#(model_filename='./model/avm.hoc')
     #load_model()

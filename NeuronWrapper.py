@@ -2,7 +2,7 @@ import sys
 import os.path
 
 
-#from neuron import gui TODO remove this than
+from neuron import gui #TODO remove this than
 from helper.myneuron import MyNeuron
 
 __author__ = 'Sergey Khayrulin'

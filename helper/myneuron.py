@@ -43,7 +43,7 @@ class Section:
     def init_section(self, h, params):
         self.nseg = h.cas().nseg
         self.h_sec = h.cas()
-        current_lenght = 0.0
+        current_length = 0.0
         len_diff_section = self.h_sec.L / self.nseg
         for i in range(int(h.n3d()) - 1):
             m_s = SubSection(self)
@@ -55,8 +55,8 @@ class Section:
             m_s.end_z = h.z3d(i + 1)
             m_s.diam = h.diam3d(i)
             m_s.calc_h()
-            current_lenght += m_s.h
-            x_info = int(current_lenght/len_diff_section)
+            current_length += m_s.h
+            x_info = int(current_length/len_diff_section)
             self.__update_data(params, m_s, float(x_info)/float(self.nseg))
             self.sub_sections.append(m_s)
 
