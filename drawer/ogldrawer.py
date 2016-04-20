@@ -215,7 +215,10 @@ class myListWidget(QtGui.QListWidget):
     def Clicked(self, item):
         for p, n in nrn.neurons.iteritems():
             if (p == item.text()):
-                n.selected = not n.selected
+                if n.selected:
+                    n.turn_off_selection()
+                else:
+                    n.selected = not n.selected
 
 
 def load_model(model_filename='./model/_ria.hoc', tstop=400):

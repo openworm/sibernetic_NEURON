@@ -41,6 +41,9 @@ class NSWidget(QGLWidget):
         self.scale = 0.01
         self.old_x = 0
         self.old_y = 0
+        self.max_diam = 0
+        self.x_name = 0
+        self.y_name = 0
 
     def __cylinder_2p(self, s, dim):
         """
@@ -67,6 +70,9 @@ class NSWidget(QGLWidget):
         angle = 180.0 / pi * acos(np.dot(z, v2r) / l)
 
         glPushMatrix()
+        #glWindowPos2f(s.start_x + v1[0]*200, s.start_y + v1[1]*200)
+        #glColor(0.5, 1.0, 0.0, 1.0)
+        #glutBitmapString(GLUT_BITMAP_HELVETICA_12, "name")
         glTranslatef(v1[0], v1[1], v1[2])
         if angle == 180.0:
             angle = -angle
@@ -76,8 +82,8 @@ class NSWidget(QGLWidget):
         #glEnable(GL_LIGHTING)
         #glEnable(GL_LIGHT0)
         #glLightfv(GL_LIGHT0, GL_POSITION, self.light_pos)
-        glPopMatrix()
 
+        glPopMatrix()
 
     def paintGL(self):
         """
@@ -92,12 +98,19 @@ class NSWidget(QGLWidget):
 
         # Draw all neurons
         for k, n in neurons.iteritems():
+            self.max_diam = 0
+            self.x_name = 0
+            self.y_name = 0
             if n.selected:
                 self.neuron_color = (0.0, 0.5, 0.5, 0.1) #(0.1, 0.8, 0.0, 0.1) (0.0, 1.0, 1.0, 0.3) #(0.0, 0.5, 0.5, 0.1)
             else:
                 self.neuron_color = (0.1, 0.1, 0.1, 0.1)
             for sec in n.sections:
                 for sub_sec in sec.sub_sections:
+                    if self.max_diam < sub_sec.diam:
+                        max_diam = sub_sec.diam
+                        self.x_name = sub_sec.start_x
+                        self.y_name = sub_sec.start_y
                     sub_section_color = self.neuron_color
                     vol = math.fabs(sub_sec.get_param('v')[0])
                     #if sub_sec.selected:
@@ -111,14 +124,13 @@ class NSWidget(QGLWidget):
                     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, sub_section_color)
                     glStencilFunc(GL_ALWAYS, sub_sec.index + 1, -1)
                     self.__cylinder_2p(sub_sec, 20)
-        kl = 0
 
-        for k, n in neurons.iteritems():
-            kl += 20
-            glWindowPos2i(100, 600-kl)
+            glWindowPos2f(self.x_name * 2.65 + 550, self.y_name * 2.65 + 320)
             glColor(0.5, 1.0, 0.0, 1.0)
             glutBitmapString(GLUT_BITMAP_HELVETICA_12, k)
+
         glFlush()
+
 
     def resizeGL(self, width, height):
         """
