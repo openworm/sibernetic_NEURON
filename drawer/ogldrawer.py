@@ -194,15 +194,11 @@ class NSWindow(QtGui.QMainWindow):
         Opens a file dialog when "Load Model" has been triggered
         """
         global nrn
-        #dialog = QtGui.QFileDialog(self)
-        #QtGui.QFileDialog.setViewMode(list)
+
         self.glWidget.look_draw()
         fileName = QtGui.QFileDialog.getOpenFileName(self, 'Open File', os.getcwd(), ("Hoc files (*.hoc)"))
         if fileName:
             load_model(fileName)
-            #window = NSWindow()
-            #window.show()
-            #self.label.setText(filename)
             self.glWidget.update_scene(nrn)
         self.glWidget.look_draw()
 

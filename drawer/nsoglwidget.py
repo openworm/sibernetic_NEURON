@@ -102,19 +102,11 @@ class NSWidget(QGLWidget):
         angle = 180.0 / pi * acos(np.dot(z, v2r) / l)
 
         glPushMatrix()
-        #glWindowPos2f(s.start_x + v1[0]*200, s.start_y + v1[1]*200)
-        #glColor(0.5, 1.0, 0.0, 1.0)
-        #glutBitmapString(GLUT_BITMAP_HELVETICA_12, "name")
         glTranslatef(v1[0], v1[1], v1[2])
         if angle == 180.0:
             angle = -angle
         glRotatef(angle, ax[0], ax[1], ax[2])
         glutSolidCylinder(s.diam / diam_scale, l, dim, dim)
-
-        #glEnable(GL_LIGHTING)
-        #glEnable(GL_LIGHT0)
-        #glLightfv(GL_LIGHT0, GL_POSITION, self.light_pos)
-
         glPopMatrix()
 
     def paintGL(self):
@@ -125,8 +117,6 @@ class NSWidget(QGLWidget):
         glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT| GL_STENCIL_BUFFER_BIT)
 
         neurons = self.nrn.neurons
-        #self.light_pos = (0.0 * self.scale, 0.0 * self.scale, 1.0 * self.scale)
-        #glLightfv(GL_LIGHT0, GL_POSITION, self.light_pos)  # light is rotating with objects
 
         # Draw all neurons
         for k, n in neurons.iteritems():
@@ -145,12 +135,9 @@ class NSWidget(QGLWidget):
                         self.y_name = sub_sec.start_y
                     sub_section_color = self.neuron_color
                     vol = math.fabs(sub_sec.get_param('v')[0])
-                    #if sub_sec.selected:
-                    #    sub_section_color = (0.7, 0.6, 0.0, 0.1)
                     #    print sub_sec.get_param('v')[0]
                     if sub_sec.get_param('v')[0] > -40.0:
                         sub_section_color = (1 * 0.02 *(sub_sec.get_param('v')[0] + 40), 0.0, 0.0, 0.1)
-                        #sub_section_color = (sub_section_color[0] * 0.2 *(sub_sec.get_param('v')[0] + 40), sub_section_color[1], sub_section_color[2], 0.1)
                     elif sub_sec.selected:
                         sub_section_color = (0.7, 0.6, 0.0, 0.1)
                     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, sub_section_color)
@@ -177,7 +164,6 @@ class NSWidget(QGLWidget):
 
         glViewport(0, 0, width, height)
         glOrtho(0, width, 0, height, -1, 1)
-        #glDepthRangef(-1.0, 1.0)
 
         '''
         glMatrixMode(GL_PROJECTION)
@@ -270,13 +256,14 @@ class NSWidget(QGLWidget):
     def mouseDoubleClickEvent(self, e): #mousePressEvent
         self.old_x = e.x()
         self.old_y = e.y()
-        if int(e.buttons()) == Qt.LeftButton: #& self.mouseMoved == False:
+        if int(e.buttons()) == Qt.LeftButton:
             index = glReadPixels(e.x(),  self.height() - e.y() - 1, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_INT)
             if index[0][0] != 0:
                 #print "selected object " + str(index[0][0] - 1)
                 for k, n in self.nrn.neurons.iteritems():
                     for sec in n.sections:
                         for sub_sec in sec.sub_sections:
+                            #print sub_sec.index
                             if index[0][0] - 1 == sub_sec.index:
                                 if not n.selected:
                                     n.selected = True
