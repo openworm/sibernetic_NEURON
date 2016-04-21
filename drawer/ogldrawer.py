@@ -247,7 +247,10 @@ class myListWidget(QtGui.QListWidget):
     def Clicked(self, item):
         for p, n in nrn.neurons.iteritems():
             if (p == item.text()):
-                n.selected = not n.selected
+                if n.selected:
+                    n.turn_off_selection()
+                else:
+                    n.selected = not n.selected
 
 
 def load_model(model_filename='./model/_ria.hoc', tstop=400):
@@ -277,7 +280,7 @@ def load_model(model_filename='./model/_ria.hoc', tstop=400):
 
 def run_window():
     """
-    Run main Qt windsudo apt-get install python-qt4ow
+    Run main Qt window (sudo apt-get install python-qt4ow)
     """
     load_model()#(model_filename='./model/avm.hoc')
     #load_model()
