@@ -120,7 +120,7 @@ class NrnSimulator:
             for sec in v.sections:
                 for sub_sec in sec.sub_sections:
                     #if not(index in unique_indexes):
-                    #    unique_indexes.append(index)
+                    unique_indexes.append(index)
                     #else:
                     index += 1
                     sub_sec.index = index

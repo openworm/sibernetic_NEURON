@@ -129,10 +129,10 @@ class NSWidget(QGLWidget):
                 self.neuron_color = (0.1, 0.1, 0.1, 0.1)
             for sec in n.sections:
                 for sub_sec in sec.sub_sections:
-                    if self.max_diam < sub_sec.diam:
-                        max_diam = sub_sec.diam
-                        self.x_name = sub_sec.start_x
-                        self.y_name = sub_sec.start_y
+                    #if self.max_diam < sub_sec.diam:
+                    #    max_diam = sub_sec.diam
+                    #    self.x_name = sub_sec.start_x
+                    #    self.y_name = sub_sec.start_y
                     sub_section_color = self.neuron_color
                     vol = math.fabs(sub_sec.get_param('v')[0])
                     #    print sub_sec.get_param('v')[0]
@@ -144,9 +144,9 @@ class NSWidget(QGLWidget):
                     glStencilFunc(GL_ALWAYS, sub_sec.index + 1, -1)
                     self.__cylinder_2p(sub_sec, 20)
 
-            glWindowPos2f(self.x_name * 2.65 + 550, self.y_name * 2.65 + 320)
-            glColor(0.5, 1.0, 0.0, 1.0)
-            glutBitmapString(GLUT_BITMAP_HELVETICA_12, k)
+            #glWindowPos2f(self.x_name * 2.65 + 550, self.y_name * 2.65 + 320)
+            #glColor(0.5, 1.0, 0.0, 1.0)
+            #glutBitmapString(GLUT_BITMAP_HELVETICA_12, k)
 
         glFlush()
 
@@ -263,15 +263,24 @@ class NSWidget(QGLWidget):
                 for k, n in self.nrn.neurons.iteritems():
                     for sec in n.sections:
                         for sub_sec in sec.sub_sections:
-                            #print sub_sec.index
                             if index[0][0] - 1 == sub_sec.index:
-                                if not n.selected:
+                                if not sub_sec.selected:
+                                    n.turn_off_selection()
                                     n.selected = True
-                                    sub_sec.selected = n.selected
-                                    sec.selected = n.selected
+                                    sec.selected = True
+                                    sub_sec.selected = True
                                 else:
                                     n.turn_off_selection()
-                                return
+            else:
+                for k, n in self.nrn.neurons.iteritems():
+                    n.turn_off_selection()
+                                #if not n.selected:
+                                #    n.selected = True
+                                #    sub_sec.selected = n.selected
+                                #    sec.selected = n.selected
+                                #else:
+                                #    n.turn_off_selection()
+                                #return
 
     def wheelEvent(self, event):
         if event.delta() > 0:
