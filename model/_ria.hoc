@@ -20,9 +20,9 @@ create AWCL_dend_p
 //create AWCL_dend_s2
 //create AWCL_dend_ring
 //////////////////////////////
-create AIY
+create AIY_
 //////////////////////////////
-create RIAL
+create RIAL_
 //////////////////////////////
 create SMDVR_p
 create SMDVR_l
@@ -82,11 +82,16 @@ insert pas
 g_pas = 6.67e-06 // S/cm2
 e_pas = -40.0 // mV
 v = -40.0
-nseg = 9*3
+nseg = 7*3
 insert pas
-pt3dadd(120, -12, -5, 0.2 ) 
-pt3dadd(122, -12, -7, 4 ) 
-pt3dadd(124, -12, -9, 0.2 ) 
+pt3dadd(120, -12, -5, 0.2 )
+pt3dadd(120.66, -12, -5.66, 1 )
+pt3dadd(121.33, -12, -6.33, 3 )
+pt3dadd(122, -12, -7, 4 )
+pt3dadd(122.66, -12, -7.66, 3 )
+pt3dadd(123.33, -12, -8.33, 1 )
+pt3dadd(124, -12, -9, 0.2 )
+
 //////////////////////////////
 access AWCL_dend_a
 Ra=180   
@@ -123,44 +128,50 @@ pt3dadd(114,   5,-12, 0.2 )
 
 /////////////////////////////
 
-access AIY
+access AIY_
 Ra=180   
 insert pas
 g_pas = 6.67e-06 // S/cm2
 e_pas = -40.0 // mV
 v = -40.0
-nseg = 15*3
-pt3dadd(168,  -15,-18, 0.2 ) 
-pt3dadd(166,  -15,-18, 4.0 ) 
-pt3dadd(164,  -15,-18, 0.2 ) 
-pt3dadd(124,  -5.2,-15, 0.2 ) 
-pt3dadd(114,  -5.2,-12.5, 0.2 ) 
-pt3dadd(109.8, -12.5, -5.2, 0.2 ) 
-pt3dadd(104.2, -12.5,  5.2, 0.2 ) 
-pt3dadd(100,  -5.2, 12.5, 0.2 ) 
-pt3dadd(100,   5.2, 12.5, 0.2 ) 
-pt3dadd(104.2,  12.5,  5.2, 0.2 ) 
-pt3dadd(109.8,  12.5, -5.2, 0.2 ) 
+nseg = 20*3
+pt3dadd(168,  -15,-18, 0.2 )
+pt3dadd(167,  -15,-18, 3.0 )
+pt3dadd(166,  -15,-18, 4.0 )
+pt3dadd(165,  -15,-18, 3.0 )
+pt3dadd(164,  -15,-18, 0.2 )
+pt3dadd(124,  -5.2,-15, 0.2 )
+pt3dadd(114,  -5.2,-12.5, 0.2 )
+pt3dadd(109.8, -12.5, -5.2, 0.2 )
+pt3dadd(104.2, -12.5,  5.2, 0.2 )
+pt3dadd(100,  -5.2, 12.5, 0.2 )
+pt3dadd(100,   5.2, 12.5, 0.2 )
+pt3dadd(104.2,  12.5,  5.2, 0.2 )
+pt3dadd(109.8,  12.5, -5.2, 0.2 )
 pt3dadd(114,   5.2,-12.5, 0.2 )
 pt3dadd(124,   5.2,-15, 0.2 )
 pt3dadd(164,   15,-18, 0.2 )
+pt3dadd(165,   15,-18, 3.0 )
 pt3dadd(166,   15,-18, 4.0 )
+pt3dadd(167,   15,-18, 3.0 )
 pt3dadd(168,   15,-18, 0.2 )
 //////////////////////////////
-access RIAL
+access RIAL_
 Ra=180   
 insert pas
 g_pas = 6.67e-06 // S/cm2
 e_pas = -40.0 // mV
 v = -40.0
-nseg = 16*7
+nseg = 19*3
 //pt3dadd(168,  -15,-18, 0.2 ) 
 //pt3dadd(166,  -15,-18, 4.0 ) 
 //pt3dadd(164,  -15,-18, 0.2 ) 
 //pt3dadd(114,  -5.2,-15, 0.2 ) 
 
 pt3dadd(122,  -16, 6, 0.2 )
+pt3dadd(121,  -16, 6, 3.0 )
 pt3dadd(120,  -16, 6, 4.0 )
+pt3dadd(119,  -16, 6, 3.0 )
 pt3dadd(118,  -16, 6, 0.2 )
 pt3dadd(114,  -18, 3, 0.2 )
 pt3dadd(118,  -12,-11, 0.2 )
@@ -168,13 +179,13 @@ pt3dadd(124,  -12,-17, 0.2 )
 pt3dadd(150,  -17,-19, 0.2 )
 pt3dadd(149,  -12.5,-17.5, 0.2 )
 pt3dadd(124,  -6.0,-15.0, 0.2 )
-pt3dadd(114,  -5.5,-12.9, 0.2 ) 
-pt3dadd(109.8, -13.0, -5.4, 0.2 ) 
-pt3dadd(104.2, -13.0,  5.4, 0.2 ) 
-pt3dadd(100,  -5.4, 13.0, 0.2 ) 
-pt3dadd(100,   5.4, 13.0, 0.2 ) 
-pt3dadd(104.2,  13.0,  5.4, 0.2 ) 
-pt3dadd(109.8,  13.0, -5.4, 0.2 ) 
+pt3dadd(114,  -5.5,-12.9, 0.2 )
+pt3dadd(109.8, -13.0, -5.4, 0.2 )
+pt3dadd(104.2, -13.0,  5.4, 0.2 )
+pt3dadd(100,  -5.4, 13.0, 0.2 )
+pt3dadd(100,   5.4, 13.0, 0.2 )
+pt3dadd(104.2,  13.0,  5.4, 0.2 )
+pt3dadd(109.8,  13.0, -5.4, 0.2 )
 pt3dadd(114,   5.5,-12.9, 0.2 )
 
 //pt3dadd(114,   5.2,-15, 0.2 )
@@ -190,7 +201,7 @@ g_pas = 6.67e-06 // S/cm2
 e_pas = -40.0 // mV
 v = -40.0
 nseg = 1*3
-pt3dadd(180.0,  -19, -19, 0.2 ) 
+pt3dadd(180.0,  -22, -19, 0.2 )
 pt3dadd(120.0,  -15, -15, 0.2 ) 
 pt3dadd(/*102.1*/111.9,  -9.6, -9.5, 0.2 ) 
 
@@ -312,8 +323,8 @@ setpointer gapsyn2.vgap, ALML_dend1dl.v(1.0)
 // Placing synapse on AIY from #AWCL_dend_p
 
 objectvar syn1
-AIY {
-syn1 = new Exp2Syn(0.60) // Inserts ExpSyn 0.60 of way down AIY
+AIY_ {
+syn1 = new Exp2Syn(0.60) // Inserts ExpSyn 0.60 of way down AIY_
 syn1.tau1 =  0.10 // ms, rise time
 syn1.tau2 =   2.0 // ms, decay time
 syn1.e    = -10.0 // mV, reversal potential
@@ -322,7 +333,7 @@ syn1.e    = -10.0 // mV, reversal potential
 // http://thesis.library.caltech.edu/5848/1/thesis.pdf
 // The synaptic potential in C. elegans neurons appears
 // to reverse between -20 mV and 0 mV ( measured for 
-// chemical synapse AFD-->AIY )
+// chemical synapse AFD-->AIY_ )
 // So, let's take an average = -10 mV
 
 // Connecting axon1 to dend2
@@ -339,8 +350,8 @@ connection1 = new NetCon( /*&axon1*/ &AWCL_dend_p.v(0.99), syn1, -10.0, 2, 1 )
 // neuron rather than an artificial one
 //......................................................
 objectvar syn2
-AIY {
-syn2 = new Exp2Syn(0.40) // Inserts ExpSyn 0.40 of way down AIY
+AIY_ {
+syn2 = new Exp2Syn(0.40) // Inserts ExpSyn 0.40 of way down AIY_
 syn2.tau1 =  0.10 // ms, rise time
 syn2.tau2 =   2.0 // ms, decay time
 syn2.e    = -10.0 // mV, reversal potential
@@ -351,16 +362,16 @@ objectvar connection2                 //threshold (mV), delay (ms), weight
 connection2 = new NetCon( /*&axon1*/ &AWCL_dend_p.v(0.80), syn2, -10.0, 2, 1 )
 //......................................................
 objectvar syn3
-RIAL{
-syn3 = new Exp2Syn(0.50) // Inserts ExpSyn 0.50 of way down RIAL
+RIAL_{
+syn3 = new Exp2Syn(0.50) // Inserts ExpSyn 0.50 of way down RIAL_
 syn3.tau1 =  0.10 // ms, rise time
 syn3.tau2 =   2.0 // ms, decay time
 syn3.e    = -65.0 // mV, reversal potential
 }
-access AIY
+access AIY_
 objectvar connection3                 //threshold (mV), delay (ms), weight
                                       //  "---------------. "---.   /    
-connection3 = new NetCon( /*&axon1*/ &AIY.v(0.30), syn3, -11.0, 2, 1 )
+connection3 = new NetCon( /*&axon1*/ &AIY_.v(0.30), syn3, -11.0, 2, 1 )
 
 //===========================================
 /**/
@@ -371,10 +382,10 @@ syn4.tau1 =  0.10 // ms, rise time
 syn4.tau2 =   2.0 // ms, decay time
 syn4.e    = -65.0 // mV, reversal potential
 }
-access RIAL
+access RIAL_
 objectvar connection4       //threshold (mV), delay (ms), weight
                             // "---------------. "---.   /    
-connection4 = new NetCon( &RIAL.v(0.69), syn4, -11.0, 2, 0.2 ) // Inhibitory synapse from RIAL to SMDDR_r
+connection4 = new NetCon( &RIAL_.v(0.69), syn4, -11.0, 2, 0.2 ) // Inhibitory synapse from RIAL_ to SMDDR_r
 
 //===========================================
 
@@ -385,15 +396,15 @@ syn5.tau1 =  0.10 // ms, rise time
 syn5.tau2 =   2.0 // ms, decay time
 syn5.e    = -65.0 // mV, reversal potential
 }
-access RIAL
+access RIAL_
 objectvar connection5       //threshold (mV), delay (ms), weight
                             // "---------------. "---.   /    
-connection5 = new NetCon( &RIAL.v(0.74), syn5, -11.0, 2, 0.2 ) // Inhibitory synapse from RIAL to SMDDR_l
+connection5 = new NetCon( &RIAL_.v(0.74), syn5, -11.0, 2, 0.2 ) // Inhibitory synapse from RIAL_ to SMDDR_l
 /**/
 //===========================================
 
 objectvar syn6
-RIAL {
+RIAL_ {
 syn6 = new Exp2Syn(0.71) // Inserts ExpSyn 0.71 of way down ...
 syn6.tau1 =  0.10 // ms, rise time
 syn6.tau2 =   2.0 // ms, decay time
@@ -402,7 +413,7 @@ syn6.e    = -10.0 // mV, reversal potential
 access SMDDR_r
 objectvar connection6          //threshold (mV), delay (ms), weight
                                // "---------------. "---.   /    
-connection6 = new NetCon( &SMDDR_r.v(0.1), syn6, -11.0, 2, 1 ) // Excitatory synapse from SMDDR_r to RIAL
+connection6 = new NetCon( &SMDDR_r.v(0.1), syn6, -11.0, 2, 1 ) // Excitatory synapse from SMDDR_r to RIAL_
 
 //===========================================
 
@@ -429,7 +440,7 @@ AWCL_stim01.dur = 60 //ms
 AWCL_stim01.amp = 0.002 //nA
 /**/
 
-/*access RIAL
+/*access RIAL_
 objectvar RIAL_stim01
 RIAL_stim01 = new IClamp (0.72 )
 RIAL_stim01.del = 20 //ms
@@ -511,8 +522,8 @@ graphList[0].append(vg1) // graphList[0] is for all objects that are
 graphList[0].append(vg2)
 
 
-vg1.addexpr("AIY.v(0.3)", 1, 1, 0.8, 0.9, 2)
-vg1.addexpr("RIAL.v(0.5)", 2, 1, 0.8, 0.9, 2)
+vg1.addexpr("AIY_.v(0.3)", 1, 1, 0.8, 0.9, 2)
+vg1.addexpr("RIAL_.v(0.5)", 2, 1, 0.8, 0.9, 2)
 vg1.addexpr("AWCL_soma.v(0.5)", 3, 1, 0.8, 0.9, 2)
 //vg1.addexpr("SMDDR_p.v(0.2)", 4, 1, 0.8, 0.9, 2)
 vg1.addexpr("SMDDR_p.v(0.9)", 8, 1, 0.8, 0.9, 2)
@@ -520,8 +531,8 @@ vg1.addexpr("SMDDR_mus.v(0.5)", 5, 1, 0.8, 0.9, 2)
 
 
 
-vg2.addexpr("RIAL.v(0.1)", 1, 1, 0.8, 0.9, 2)
-//vg2.addexpr("RIAL.v(0.3)", 2, 1, 0.8, 0.9, 2)
-vg2.addexpr("RIAL.v(0.6)", 2, 1, 0.8, 0.9, 2)
-vg2.addexpr("RIAL.v(0.65)", 5, 1, 0.8, 0.9, 2)
-vg2.addexpr("RIAL.v(0.8)", 3, 1, 0.8, 0.9, 2)
+vg2.addexpr("RIAL_.v(0.1)", 1, 1, 0.8, 0.9, 2)
+//vg2.addexpr("RIAL_.v(0.3)", 2, 1, 0.8, 0.9, 2)
+vg2.addexpr("RIAL_.v(0.6)", 2, 1, 0.8, 0.9, 2)
+vg2.addexpr("RIAL_.v(0.65)", 5, 1, 0.8, 0.9, 2)
+vg2.addexpr("RIAL_.v(0.8)", 3, 1, 0.8, 0.9, 2)

@@ -159,14 +159,29 @@ class NSWindow(QtGui.QMainWindow):
         right_spacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         self.myToolbar.addWidget(left_spacer)
 
-        self.pause_action = QtGui.QAction(QtGui.QIcon('drawer/icons/pause.png'), "Pause simulation", self)
-        self.connect(self.pause_action, QtCore.SIGNAL('triggered()'), self.action_Pause)
+        pause_action = QtGui.QAction(QtGui.QIcon('drawer/icons/pause.png'), "Pause simulation", self)
+        self.connect(pause_action, QtCore.SIGNAL('triggered()'), self.action_Pause)
 
         stop_action = QtGui.QAction(QtGui.QIcon('drawer/icons/stop.png'), "Stop simulation", self)
         self.connect(stop_action, QtCore.SIGNAL('triggered()'), QtCore.SLOT('close()'))
 
+        remove_action = QtGui.QAction(QtGui.QIcon('drawer/icons/undo.png'), "Remove all selections", self)
+        self.connect(remove_action, QtCore.SIGNAL('triggered()'), self.action_Remove_selection)
+
+        zoom_in = QtGui.QAction(QtGui.QIcon('drawer/icons/zoom-in.png'), "Zoom the model in", self)
+        self.connect(zoom_in, QtCore.SIGNAL('triggered()'), self.glWidget.zoom_plus)
+
+        zoom_out = QtGui.QAction(QtGui.QIcon('drawer/icons/zoom-out.png'), "Zoom the model out", self)
+        self.connect(zoom_out, QtCore.SIGNAL('triggered()'), self.glWidget.zoom_minus)
+
         self.myToolbar.addSeparator()
-        self.myToolbar.addAction(self.pause_action)
+        self.myToolbar.addAction(zoom_out)
+        self.myToolbar.addSeparator()
+        self.myToolbar.addAction(zoom_in)
+        self.myToolbar.addSeparator()
+        self.myToolbar.addAction(pause_action)
+        self.myToolbar.addSeparator()
+        self.myToolbar.addAction(remove_action)
         self.myToolbar.addSeparator()
         self.myToolbar.addAction(stop_action)
         self.myToolbar.addSeparator()
@@ -179,6 +194,10 @@ class NSWindow(QtGui.QMainWindow):
     def action_Pause(self):
         #self.myToolbar.setStyleSheet("self.pause_action.QToolButton {background-color: rgba(128, 128, 130, 255)}")
         self.glWidget.actionPause()
+
+    def action_Remove_selection(self):
+        for p, n in nrn.neurons.iteritems():
+            n.turn_off_selection()
 
     def print_time(self):
         time = "%.3f" % nrn.get_time()
@@ -278,8 +297,8 @@ def run_window():
     """
     Run main Qt window (sudo apt-get install python-qt4ow)
     """
-    load_model()#(model_filename='./model/avm.hoc')
-    #load_model()
+    load_model() #(model_filename='./model/avm.hoc')
+    #load_model(model_filename='./model/pyramid.nrn')
     app = QApplication(["Neuron<->Python interactive work environment"])
     window = NSWindow()
     window.show()

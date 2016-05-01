@@ -51,7 +51,7 @@ paramVec = [v]
 class NrnSimulator:
     """
     NEURON wrapper init and run
-    model described on hoc ito NEURON simulator
+    model described on hoc into NEURON simulator
     """
 
     def __init__(self, model_name, tstop=20.0):
@@ -108,6 +108,7 @@ class NrnSimulator:
             index = section_name.find('_')
             if index != -1:
                 self.neurons_names.append(section_name[0:index])
+
 
     def get_time(self):
         from neuron import h

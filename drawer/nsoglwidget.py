@@ -73,9 +73,12 @@ class NSWidget(QGLWidget):
         self.scale = 0.01
         self.old_x = 0
         self.old_y = 0
-        self.max_diam = 0
-        self.x_name = 0
-        self.y_name = 0
+        self.axis_x = np.array([1.0, 0.0, 0.0])
+        self.axis_y = np.array([0.0, 1.0, 0.0])
+        self.axis_z = np.array([0.0, 0.0, 1.0])
+        #self.max_diam = 0
+        #self.x_name = 0
+        #self.y_name = 0
 
     def __cylinder_2p(self, s, dim):
         """
@@ -92,14 +95,14 @@ class NSWidget(QGLWidget):
         v1 = np.array([s.start_x * self.scale, s.start_y * self.scale, s.start_z * self.scale])
         v2 = np.array([s.end_x * self.scale, s.end_y * self.scale, s.end_z * self.scale])
         v2r = v2 - v1
-        z = np.array([0.0, 0.0, 1.0])
+        #self.axis_z = np.array([0.0, 0.0, 1.0])
         # the rotation axis is the cross product between Z and v2r
-        ax = np.cross(z, v2r)
+        ax = np.cross(self.axis_z, v2r)
         l = sqrt(np.dot(v2r, v2r))
         if sqrt(np.dot(ax, ax)) == 0:
             ax = np.array([1.0, 0.0, 0.0])
         # get the angle using a dot product
-        angle = 180.0 / pi * acos(np.dot(z, v2r) / l)
+        angle = 180.0 / pi * acos(np.dot(self.axis_z, v2r) / l)
 
         glPushMatrix()
         glTranslatef(v1[0], v1[1], v1[2])
@@ -274,13 +277,7 @@ class NSWidget(QGLWidget):
             else:
                 for k, n in self.nrn.neurons.iteritems():
                     n.turn_off_selection()
-                                #if not n.selected:
-                                #    n.selected = True
-                                #    sub_sec.selected = n.selected
-                                #    sec.selected = n.selected
-                                #else:
-                                #    n.turn_off_selection()
-                                #return
+
 
     def wheelEvent(self, event):
         if event.delta() > 0:
@@ -295,6 +292,9 @@ class NSWidget(QGLWidget):
     def update_scene(self, new_nrn):
         self.initializeGL()
         self.__init_vars(new_nrn)
+
+    def system_of_coordinates(self):
+        pass
 
     def zoom_plus(self):
         self.scale *= 1.1

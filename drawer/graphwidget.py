@@ -107,7 +107,7 @@ class NSGraphWidget(QWidget):
                 line, = self.axes.plot([], [], lw=1, label='Blue stars')
                 self.lines.append(line)
             self.lines[i].set_data(self.xdata[len(self.xdata) - len(res):], res)
-            self.ani.legend(handles=[self.lines[i]])
+            #self.ani.legend(handles=[self.lines[i]])
         return self.lines
 
     def on_draw(self):
