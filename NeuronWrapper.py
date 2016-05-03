@@ -68,16 +68,20 @@ class NrnSimulator:
             self.out_data = {}
             self.neurons_names = []
             self.neurons = {}
+            #self.sections = {}
             self.__find_all_neurons()
             if len(self.neurons_names) == 0:
-                raise RuntimeError(u"In File: {0:s} with model no any neurons has been found please check the "
+                raise RuntimeError(u"In File: {0:s} with model no any neurons has been found. Please check the "
                                    u"the file".format(model_name))
             print self.neurons_names
             for name in self.neurons_names: #TODO put check that we haven't added this neuron yet in dictionary neurons
                 self.neurons[name] = MyNeuron(name, index=self.neurons_names.index(name))
+
             # Initialization of segments and data arrays
             for k, val in self.neurons.iteritems():
                 val.init_sections(h, paramVec)
+                #for sec in val.sections:
+                #    self.sections[]
             self.__index_sub_segments()
         else:
             raise ValueError("Name of file with Model shouldn't be empty")
@@ -118,13 +122,14 @@ class NrnSimulator:
         unique_indexes = []
         index = 0
         for k, v in self.neurons.iteritems():
-            for sec in v.sections:
+            for sec in v.sections.values():
                 for sub_sec in sec.sub_sections:
                     #if not(index in unique_indexes):
                     unique_indexes.append(index)
                     #else:
                     index += 1
                     sub_sec.index = index
+        print index
 
     def finish(self):
         """

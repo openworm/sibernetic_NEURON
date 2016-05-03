@@ -66,24 +66,32 @@ class NSWindow(QtGui.QMainWindow):
         super(NSWindow, self).__init__()
         self.resize(1492, 989)
         self.graph_window = None
-        self.glWidget = NSWidget(nrn)
+        self.glWidget = NSWidget(nrn, self)
+        self.glWidget.neuronSelectionChanged.connect(self.neuronsListSelectByName)
         self.setCentralWidget(self.glWidget)
         self.glWidget.show()
         self.xSlider = self.create_slider()
-        #self.ySlider = self.createSlider()
-        #self.zSlider = self.createSlider()
-        self.treeView = QTreeView()
         #main_layout = QHBoxLayout()
         #main_layout.addWidget(self.glWidget)
         self.xSlider.setValue(15 * 16)
-        #self.ySlider.setValue(345 * 16)
-        #self.zSlider.setValue(0 * 16)
 
+        self.create_menu()
+        self.create_dock_window()
+        self.create_toolbar()
+        self.statusBar().setVisible(True)
+
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.print_time)
+        self.timer.start(0)
+
+        #self.neurons_names()
+
+    def create_menu(self):
         exit = QtGui.QAction(self)
         exit.setText(_translate("MainWindow", "Exit", None))
         exit.setShortcut('Ctrl+Q')
         self.connect(exit, QtCore.SIGNAL('triggered()'), QtCore.SLOT('close()'))
-        
+
         zoom_plus_action = QtGui.QAction(self)
         zoom_plus_action.setText(_translate("MainWindow", "Zoom +", None))
         self.connect(zoom_plus_action, QtCore.SIGNAL('triggered()'), self.glWidget.zoom_plus)
@@ -120,16 +128,6 @@ class NSWindow(QtGui.QMainWindow):
         menu_view.addAction(zoom_minus_action)
         self.tools.addAction(draw_graph_action)
         menu_help.addAction(about_action)
-
-        self.create_dock_window()
-        self.create_toolbar()
-        self.statusBar().setVisible(True)
-
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.print_time)
-        self.timer.start(0)
-
-        #self.neurons_names()
 
     def create_slider(self):
         slider = QtGui.QSlider(QtCore.Qt.Vertical)
@@ -197,7 +195,9 @@ class NSWindow(QtGui.QMainWindow):
 
     def action_Remove_selection(self):
         for p, n in nrn.neurons.iteritems():
-            n.turn_off_selection()
+            if n.selected:
+                n.turn_off_selection()
+                self.neuronsListSelectByName(p, False)
 
     def print_time(self):
         time = "%.3f" % nrn.get_time()
@@ -243,29 +243,48 @@ class NSWindow(QtGui.QMainWindow):
     def create_dock_window(self):
         dock = QtGui.QDockWidget("List of Neurons", self)
         dock.setAllowedAreas(QtCore.Qt.RightDockWidgetArea)
-        self.neuronsList = myListWidget()
+        MyTreeWidget = QtGui.QTreeWidget(self)
+        self.neuronsList = MyTreeWidget
+        self.neuronsList.setHeaderHidden(True)
+        self.neuronsList.setSelectionMode(QtGui.QAbstractItemView.MultiSelection)
 
-        for l in nrn.neurons.keys():
-            self.neuronsList.addItem(l)
+        for k, n in nrn.neurons.iteritems():
+            self.neurons_names = QtGui.QTreeWidgetItem(self.neuronsList, [k])
+            for sec, val in n.sections.iteritems():
+                self.section = QtGui.QTreeWidgetItem(self.neurons_names, [sec])
 
         dock.setWidget(self.neuronsList)
         self.addDockWidget(QtCore.Qt.RightDockWidgetArea, dock)
-        #self.neuronsList.setObjectName("Neurons")
         self.tools.addAction(dock.toggleViewAction())
-        self.neuronsList.setMaximumWidth(100)
+        self.neuronsList.setMaximumWidth(200)
 
-        self.neuronsList.itemClicked.connect(self.neuronsList.Clicked)
+        self.neuronsList.itemClicked.connect(self.neuronsList_clicked)
+
+    def neuronsList_clicked(self, item, m):
+        if str(item.text(m)).find('_') != -1:
+            item.setSelected(False)
+            #for name, val in nrn.neurons.iteritems():
+            #    if str(item.text(m)).startswith(name):
+            #        s = val.sections[str(item.text(m))]
+            #        if val.selected:
+            #            if s.selected:
+            #                s.selected = False
+            #        else:
+            #            val.selected = True
+            #            s.selected = True
+        else:
+            print item.text(m)
+            n = nrn.neurons[str(item.text(m))]
+            if n.selected:
+                n.turn_off_selection()
+            else:
+                n.selected = not n.selected
 
 
-class myListWidget(QtGui.QListWidget):
-
-    def Clicked(self, item):
-        for p, n in nrn.neurons.iteritems():
-            if (p == item.text()):
-                if n.selected:
-                    n.turn_off_selection()
-                else:
-                    n.selected = not n.selected
+    def neuronsListSelectByName(self, name, isSelect = True, m=1):
+        item = self.neuronsList.findItems(name, Qt.MatchExactly | Qt.MatchRecursive)[0] #.count()
+        print (name, item, isSelect)
+        item.setSelected(isSelect)
 
 
 def load_model(model_filename='./model/_ria.hoc', tstop=400):

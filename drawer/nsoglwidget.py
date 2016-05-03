@@ -43,14 +43,18 @@ from math import sqrt, pi, acos
 
 
 class NSWidget(QGLWidget):
-    def __init__(self, nrn, parent=None):
+
+    neuronSelectionChanged = pyqtSignal(unicode, bool)
+
+    def __init__(self, nrn, NSWindow):
         glutInit(sys.argv)
         glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_STENCIL)
-        super(NSWidget, self).__init__(parent)
+        super(NSWidget, self).__init__()
         self.setMouseTracking(True)
         self.__init_vars(nrn)
         self.look_draw_state = False
         self.ifPause = False
+        self.parent = NSWindow
 
     def __init_vars(self, nrn):
         """
@@ -95,7 +99,6 @@ class NSWidget(QGLWidget):
         v1 = np.array([s.start_x * self.scale, s.start_y * self.scale, s.start_z * self.scale])
         v2 = np.array([s.end_x * self.scale, s.end_y * self.scale, s.end_z * self.scale])
         v2r = v2 - v1
-        #self.axis_z = np.array([0.0, 0.0, 1.0])
         # the rotation axis is the cross product between Z and v2r
         ax = np.cross(self.axis_z, v2r)
         l = sqrt(np.dot(v2r, v2r))
@@ -123,14 +126,11 @@ class NSWidget(QGLWidget):
 
         # Draw all neurons
         for k, n in neurons.iteritems():
-            self.max_diam = 0
-            self.x_name = 0
-            self.y_name = 0
             if n.selected:
                 self.neuron_color = (0.0, 0.5, 0.5, 0.1) #(0.1, 0.8, 0.0, 0.1) (0.0, 1.0, 1.0, 0.3) #(0.0, 0.5, 0.5, 0.1)
             else:
                 self.neuron_color = (0.1, 0.1, 0.1, 0.1)
-            for sec in n.sections:
+            for sec in n.sections.values():
                 for sub_sec in sec.sub_sections:
                     #if self.max_diam < sub_sec.diam:
                     #    max_diam = sub_sec.diam
@@ -167,16 +167,6 @@ class NSWidget(QGLWidget):
 
         glViewport(0, 0, width, height)
         glOrtho(0, width, 0, height, -1, 1)
-
-        '''
-        glMatrixMode(GL_PROJECTION)
-        glLoadIdentity()
-        aspectRatio = float(width) / float(height);
-        if aspectRatio > 1.0:
-            glFrustum(-1*aspectRatio, 1*aspectRatio, -1, 1, 3, 45)
-        else:
-            glFrustum(-1, 1, -1/aspectRatio, 1/aspectRatio, 3, 45)
-        '''
 
         self.aspect = float(width) / float(height)
         glMatrixMode(GL_PROJECTION)
@@ -264,7 +254,7 @@ class NSWidget(QGLWidget):
             if index[0][0] != 0:
                 #print "selected object " + str(index[0][0] - 1)
                 for k, n in self.nrn.neurons.iteritems():
-                    for sec in n.sections:
+                    for sec in n.sections.values():
                         for sub_sec in sec.sub_sections:
                             if index[0][0] - 1 == sub_sec.index:
                                 if not sub_sec.selected:
@@ -274,9 +264,11 @@ class NSWidget(QGLWidget):
                                     sub_sec.selected = True
                                 else:
                                     n.turn_off_selection()
+                    self.neuronSelectionChanged.emit(k, n.selected)
             else:
                 for k, n in self.nrn.neurons.iteritems():
                     n.turn_off_selection()
+                    self.neuronSelectionChanged.emit(k, False)
 
 
     def wheelEvent(self, event):
@@ -304,5 +296,5 @@ class NSWidget(QGLWidget):
 
     def actionPause(self):
         self.ifPause = not self.ifPause
-        print self.ifPause
+        #print self.ifPause
 

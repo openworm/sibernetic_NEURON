@@ -115,7 +115,7 @@ class Section:
 class MyNeuron:
     def __init__(self, name='', index=0):
         self.name = name
-        self.sections = []
+        self.sections = {}
         self.selected = False
         self.index = index
 
@@ -132,9 +132,8 @@ class MyNeuron:
         for h_sec in h.allsec():
             section_name = h_sec.name()
             if section_name.startswith(self.name):
-                s = Section(index, section_name, self)
-                s.init_section(h, params)
-                self.sections.append(s)
+                self.sections[section_name] = Section(index, section_name, self)
+                self.sections[section_name].init_section(h, params)
             index += 1
 
     def update_sec_data(self, params):
@@ -143,7 +142,7 @@ class MyNeuron:
 
         :param params: list of parameters which we wanna update
         """
-        for s in self.sections:
+        for s in self.sections.values():
             s.update_data(params)
 
     def turn_off_selection(self):
@@ -151,7 +150,7 @@ class MyNeuron:
         Make selected neuron unselected
         """
         self.selected = False
-        for sec in self.sections:
+        for sec in self.sections.values():
             sec.selected = False
             for sub_sec in sec.sub_sections:
                 sub_sec.selected = False
