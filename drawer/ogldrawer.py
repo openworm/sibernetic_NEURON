@@ -198,6 +198,8 @@ class NSWindow(QtGui.QMainWindow):
             if n.selected:
                 n.turn_off_selection()
                 self.neuronsListSelectByName(p, False)
+                for sec, val in n.sections.iteritems():
+                    self.neuronsListSelectByName(sec, False)
 
     def print_time(self):
         time = "%.3f" % nrn.get_time()
@@ -259,31 +261,48 @@ class NSWindow(QtGui.QMainWindow):
         self.neuronsList.setMaximumWidth(200)
 
         self.neuronsList.itemClicked.connect(self.neuronsList_clicked)
+        self.neuronsList.itemDoubleClicked.connect(self.neuronsList_clicked)
 
     def neuronsList_clicked(self, item, m):
         if str(item.text(m)).find('_') != -1:
-            item.setSelected(False)
-            #for name, val in nrn.neurons.iteritems():
-            #    if str(item.text(m)).startswith(name):
-            #        s = val.sections[str(item.text(m))]
-            #        if val.selected:
-            #            if s.selected:
-            #                s.selected = False
-            #        else:
-            #            val.selected = True
-            #            s.selected = True
+            for name, val in nrn.neurons.iteritems():
+                if str(item.text(m)).startswith(name):   #found neuron
+                    s = val.sections[str(item.text(m))]
+
+                    if not s.selected:
+                        self.neuronsListSelectByName(name, True)
+                        s.selected = True
+                        for k, sec in val.sections.iteritems():
+                            if k != str(item.text(m)):
+                                self.neuronsListSelectByName(k, False)
+
+                        for sub_sec in s.sub_sections:
+                            if not sub_sec.selected:
+                                val.turn_off_selection()
+                                val.selected = True
+                                s.selected = True
+                                sub_sec.selected = True
+                            else:
+                                self.neuronsListSelectByName(name, False)
+                                self.neuronsListSelectByName(str(item.text(m)), False)
+                                val.turn_off_selection()
+                    else:
+                        s.selected = False
+                        for sub_sec in s.sub_sections:
+                            sub_sec.selected = False
         else:
-            print item.text(m)
             n = nrn.neurons[str(item.text(m))]
             if n.selected:
                 n.turn_off_selection()
+                for sec, val in n.sections.iteritems():
+                    self.neuronsListSelectByName(sec, False)
             else:
                 n.selected = not n.selected
 
 
     def neuronsListSelectByName(self, name, isSelect = True, m=1):
         item = self.neuronsList.findItems(name, Qt.MatchExactly | Qt.MatchRecursive)[0] #.count()
-        print (name, item, isSelect)
+        #print (name, item, isSelect)
         item.setSelected(isSelect)
 
 
