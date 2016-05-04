@@ -266,17 +266,19 @@ class NSWindow(QtGui.QMainWindow):
     def neuronsList_clicked(self, item, m):
         if str(item.text(m)).find('_') != -1:
             for name, val in nrn.neurons.iteritems():
-                if str(item.text(m)).startswith(name):   #found neuron
+                if str(item.text(m)).startswith(name):
                     s = val.sections[str(item.text(m))]
 
                     if not s.selected:
-                        self.neuronsListSelectByName(name, True)
                         s.selected = True
+                        self.neuronsListSelectByName(name, True)
                         for k, sec in val.sections.iteritems():
+                            #print k, str(item.text(m))
                             if k != str(item.text(m)):
                                 self.neuronsListSelectByName(k, False)
 
                         for sub_sec in s.sub_sections:
+                            #sub_sec.selected = not sub_sec.selected
                             if not sub_sec.selected:
                                 val.turn_off_selection()
                                 val.selected = True

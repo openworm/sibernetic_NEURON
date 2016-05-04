@@ -254,21 +254,27 @@ class NSWidget(QGLWidget):
             if index[0][0] != 0:
                 #print "selected object " + str(index[0][0] - 1)
                 for k, n in self.nrn.neurons.iteritems():
-                    for sec in n.sections.values():
-                        for sub_sec in sec.sub_sections:
+                    for sec, val in n.sections.iteritems():
+                        for sub_sec in val.sub_sections:
                             if index[0][0] - 1 == sub_sec.index:
                                 if not sub_sec.selected:
                                     n.turn_off_selection()
                                     n.selected = True
-                                    sec.selected = True
+                                    val.selected = True
                                     sub_sec.selected = True
+                                    for sec1, val1 in n.sections.iteritems():
+                                        if sec1 != sec:
+                                            self.neuronSelectionChanged.emit(sec1, val1.selected)
                                 else:
                                     n.turn_off_selection()
+                        self.neuronSelectionChanged.emit(sec, val.selected)
                     self.neuronSelectionChanged.emit(k, n.selected)
             else:
                 for k, n in self.nrn.neurons.iteritems():
                     n.turn_off_selection()
                     self.neuronSelectionChanged.emit(k, False)
+                    for sec, val in n.sections.iteritems():
+                        self.neuronSelectionChanged.emit(sec, val.selected)
 
 
     def wheelEvent(self, event):
