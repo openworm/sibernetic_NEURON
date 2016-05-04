@@ -163,7 +163,7 @@ class MyNeuron:
         """
         if not self.selected:
             return None
-        for sec in self.sections:
+        for name, sec in self.sections.iteritems():
             if sec.selected:
                 for sub_sec in sec.sub_sections:
                     if sub_sec.selected:
