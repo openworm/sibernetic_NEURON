@@ -252,13 +252,14 @@ class NSWindow(QtGui.QMainWindow):
 
         for k, n in nrn.neurons.iteritems():
             self.neurons_names = QtGui.QTreeWidgetItem(self.neuronsList, [k])
+            self.neuronsList.expandItem(self.neurons_names)    #collapseItem
             for sec, val in n.sections.iteritems():
                 self.section = QtGui.QTreeWidgetItem(self.neurons_names, [sec])
 
         dock.setWidget(self.neuronsList)
         self.addDockWidget(QtCore.Qt.RightDockWidgetArea, dock)
         self.tools.addAction(dock.toggleViewAction())
-        self.neuronsList.setMaximumWidth(200)
+        self.neuronsList.setMaximumWidth(150)
 
         self.neuronsList.itemClicked.connect(self.neuronsList_clicked)
         self.neuronsList.itemDoubleClicked.connect(self.neuronsList_clicked)
@@ -278,7 +279,6 @@ class NSWindow(QtGui.QMainWindow):
                                 self.neuronsListSelectByName(k, False)
 
                         for sub_sec in s.sub_sections:
-                            #sub_sec.selected = not sub_sec.selected
                             if not sub_sec.selected:
                                 val.turn_off_selection()
                                 val.selected = True

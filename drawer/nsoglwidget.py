@@ -204,7 +204,7 @@ class NSWidget(QGLWidget):
         glLightfv(GL_LIGHT0, GL_POSITION, self.light_pos)
 
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        glClearColor(0.5, 0.5, 0.5, 1.0)
+        glClearColor(0.5, 0.5, 0.5, 1.0) #(0.8, 0.8, 0.8, 1.0)
 
         glEnable(GL_STENCIL_TEST)
         glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE)
