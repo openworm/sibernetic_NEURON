@@ -70,10 +70,10 @@ class NSWindow(QtGui.QMainWindow):
         self.glWidget.neuronSelectionChanged.connect(self.neuronsListSelectByName)
         self.setCentralWidget(self.glWidget)
         self.glWidget.show()
-        self.xSlider = self.create_slider()
+        #self.xSlider = self.create_slider()
         #main_layout = QHBoxLayout()
         #main_layout.addWidget(self.glWidget)
-        self.xSlider.setValue(15 * 16)
+        #self.xSlider.setValue(15 * 16)
 
         self.create_menu()
         self.create_dock_window()
@@ -130,12 +130,12 @@ class NSWindow(QtGui.QMainWindow):
         menu_help.addAction(about_action)
 
     def create_slider(self):
-        slider = QtGui.QSlider(QtCore.Qt.Vertical)
-        slider.setRange(0, 360 * 16)
-        slider.setSingleStep(16)
-        slider.setPageStep(15 * 16)
-        slider.setTickInterval(15 * 16)
-        slider.setTickPosition(QSlider.TicksRight)
+        slider = QtGui.QSlider(QtCore.Qt.Horizontal)
+        slider.setRange(1, 100)
+        slider.setSingleStep(10)
+        slider.setPageStep(10)
+        slider.setTickInterval(5)
+        slider.setTickPosition(QSlider.TicksBelow)
         return slider
 
     def neurons_names(self):
@@ -150,6 +150,12 @@ class NSWindow(QtGui.QMainWindow):
     def create_toolbar(self):
         self.myToolbar = QtGui.QToolBar("ToolBar")
         self.addToolBar(Qt.BottomToolBarArea, self.myToolbar)
+
+        self.speed_label = QLabel('Speed up simulation in 1')
+        self.speedSlider = self.create_slider()
+        self.speedSlider.setValue(1)
+
+        self.speedSlider.valueChanged.connect(self.speedChange)
 
         left_spacer = QtGui.QWidget()
         left_spacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
@@ -183,11 +189,17 @@ class NSWindow(QtGui.QMainWindow):
         self.myToolbar.addSeparator()
         self.myToolbar.addAction(stop_action)
         self.myToolbar.addSeparator()
-
+        self.myToolbar.addWidget(self.speed_label)
+        self.myToolbar.addWidget(self.speedSlider)
+        self.myToolbar.addSeparator()
         self.myToolbar.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
 
         self.myToolbar.addWidget(right_spacer)
         self.tools.addAction(self.myToolbar.toggleViewAction())
+
+    def speedChange(self):
+        nrn.simulation_speed = self.speedSlider.value()
+        self.speed_label.setText('Speed up simulation in %d' % self.speedSlider.value())
 
     def action_Pause(self):
         #self.myToolbar.setStyleSheet("self.pause_action.QToolButton {background-color: rgba(128, 128, 130, 255)}")
@@ -274,7 +286,6 @@ class NSWindow(QtGui.QMainWindow):
                         s.selected = True
                         self.neuronsListSelectByName(name, True)
                         for k, sec in val.sections.iteritems():
-                            #print k, str(item.text(m))
                             if k != str(item.text(m)):
                                 self.neuronsListSelectByName(k, False)
 
@@ -303,8 +314,7 @@ class NSWindow(QtGui.QMainWindow):
 
 
     def neuronsListSelectByName(self, name, isSelect = True, m=1):
-        item = self.neuronsList.findItems(name, Qt.MatchExactly | Qt.MatchRecursive)[0] #.count()
-        #print (name, item, isSelect)
+        item = self.neuronsList.findItems(name, Qt.MatchExactly | Qt.MatchRecursive)[0]
         item.setSelected(isSelect)
 
 

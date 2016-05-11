@@ -83,6 +83,7 @@ class NrnSimulator:
                 #for sec in val.sections:
                 #    self.sections[]
             self.__index_sub_segments()
+            self.simulation_speed = 1
         else:
             raise ValueError("Name of file with Model shouldn't be empty")
 
@@ -96,7 +97,8 @@ class NrnSimulator:
         """
         from neuron import h
         if h.t < h.tstop:
-            h.advance()
+            for i in xrange(self.simulation_speed):
+                h.advance()
             self.__update_data()
         else:
             print 'Simulation is finished'
