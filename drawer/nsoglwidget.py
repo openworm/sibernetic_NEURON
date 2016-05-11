@@ -80,6 +80,7 @@ class NSWidget(QGLWidget):
         self.axis_x = np.array([1.0, 0.0, 0.0])
         self.axis_y = np.array([0.0, 1.0, 0.0])
         self.axis_z = np.array([0.0, 0.0, 1.0])
+        self.is_transorming = False
         #self.max_diam = 0
         #self.x_name = 0
         #self.y_name = 0
@@ -115,6 +116,14 @@ class NSWidget(QGLWidget):
         glutSolidCylinder(s.diam / diam_scale, l, dim, dim)
         glPopMatrix()
 
+    def __draw_line(self, s):
+        glBegin(GL_LINES)
+        v1 = np.array([s.start_x * self.scale, s.start_y * self.scale, s.start_z * self.scale])
+        v2 = np.array([s.end_x * self.scale, s.end_y * self.scale, s.end_z * self.scale])
+        glVertex3fv(v1)
+        glVertex3fv(v2)
+        glEnd()
+
     def paintGL(self):
         """
         Display function draws scene
@@ -145,7 +154,10 @@ class NSWidget(QGLWidget):
                         sub_section_color = (0.7, 0.6, 0.0, 0.1)
                     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, sub_section_color)
                     glStencilFunc(GL_ALWAYS, sub_sec.index + 1, -1)
-                    self.__cylinder_2p(sub_sec, 20)
+                    if self.is_transorming:
+                        self.__draw_line(sub_sec)
+                    else:
+                        self.__cylinder_2p(sub_sec, 20)
 
             #glWindowPos2f(self.x_name * 2.65 + 550, self.y_name * 2.65 + 320)
             #glColor(0.5, 1.0, 0.0, 1.0)
@@ -228,11 +240,15 @@ class NSWidget(QGLWidget):
         if int(mouseEvent.buttons()) == Qt.LeftButton:
             self.cameraRot[0] += dy / 5.0
             self.cameraRot[1] += dx / 5.0
-        if int(mouseEvent.buttons()) == Qt.RightButton:
+            self.is_transorming = True
+        elif int(mouseEvent.buttons()) == Qt.RightButton:
             self.cameraTrans[0] += dx / 500.0
             self.cameraTrans[1] -= dy / 500.0
-        if int(mouseEvent.buttons()) == Qt.MiddleButton:
+            self.is_transorming = True
+        elif int(mouseEvent.buttons()) == Qt.MiddleButton:
             self.cameraTrans[2] += (dy / 500.0) * 0.5 * math.fabs(self.cameraTrans[2])
+        else:
+            self.is_transorming = False
         self.old_x = x
         self.old_y = y
         glMatrixMode(GL_MODELVIEW)
