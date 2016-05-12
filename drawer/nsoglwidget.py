@@ -80,7 +80,7 @@ class NSWidget(QGLWidget):
         self.axis_x = np.array([1.0, 0.0, 0.0])
         self.axis_y = np.array([0.0, 1.0, 0.0])
         self.axis_z = np.array([0.0, 0.0, 1.0])
-        self.is_transorming = False
+        self.is_transforming = False
         #self.max_diam = 0
         #self.x_name = 0
         #self.y_name = 0
@@ -154,7 +154,7 @@ class NSWidget(QGLWidget):
                         sub_section_color = (0.7, 0.6, 0.0, 0.1)
                     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, sub_section_color)
                     glStencilFunc(GL_ALWAYS, sub_sec.index + 1, -1)
-                    if self.is_transorming:
+                    if self.is_transforming:
                         self.__draw_line(sub_sec)
                     else:
                         self.__cylinder_2p(sub_sec, 20)
@@ -240,15 +240,16 @@ class NSWidget(QGLWidget):
         if int(mouseEvent.buttons()) == Qt.LeftButton:
             self.cameraRot[0] += dy / 5.0
             self.cameraRot[1] += dx / 5.0
-            self.is_transorming = True
+            self.is_transforming = True
         elif int(mouseEvent.buttons()) == Qt.RightButton:
             self.cameraTrans[0] += dx / 500.0
             self.cameraTrans[1] -= dy / 500.0
-            self.is_transorming = True
+            self.is_transforming = True
         elif int(mouseEvent.buttons()) == Qt.MiddleButton:
             self.cameraTrans[2] += (dy / 500.0) * 0.5 * math.fabs(self.cameraTrans[2])
         else:
-            self.is_transorming = False
+            self.is_transforming = False
+
         self.old_x = x
         self.old_y = y
         glMatrixMode(GL_MODELVIEW)
@@ -291,6 +292,9 @@ class NSWidget(QGLWidget):
                     self.neuronSelectionChanged.emit(k, False)
                     for sec, val in n.sections.iteritems():
                         self.neuronSelectionChanged.emit(sec, val.selected)
+
+    def mouseReleaseEvent(self, e):
+        self.is_transforming = False
 
 
     def wheelEvent(self, event):

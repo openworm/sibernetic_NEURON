@@ -154,6 +154,7 @@ class NSWindow(QtGui.QMainWindow):
         self.speed_label = QLabel('Speed up simulation in 1')
         self.speedSlider = self.create_slider()
         self.speedSlider.setValue(1)
+        self.speed_label.setAlignment(Qt.AlignBottom)
 
         self.speedSlider.valueChanged.connect(self.speedChange)
 
