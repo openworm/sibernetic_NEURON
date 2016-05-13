@@ -154,7 +154,7 @@ class NSWindow(QtGui.QMainWindow):
         self.speed_label = QLabel('Speed up simulation in 1')
         self.speedSlider = self.create_slider()
         self.speedSlider.setValue(1)
-        self.speed_label.setAlignment(Qt.AlignBottom)
+        #self.speed_label.setAlignment(Qt)
 
         self.speedSlider.valueChanged.connect(self.speedChange)
 
@@ -349,7 +349,7 @@ def run_window():
     Run main Qt window (sudo apt-get install python-qt4ow)
     """
     load_model() #(model_filename='./model/avm.hoc')
-    #load_model(model_filename='./model/pyramid.nrn')
+    #load_model(model_filename='./testmodel/j8.hoc')
     app = QApplication(["Neuron<->Python interactive work environment"])
     window = NSWindow()
     window.show()

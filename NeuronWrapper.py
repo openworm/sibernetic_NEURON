@@ -133,6 +133,15 @@ class NrnSimulator:
                     sub_sec.index = index
         print index
 
+    def add_stim(self, n_name, sec_name=10):
+        #TODO describe all in detail
+        from neuron import h
+        stim = h.IClamp(0.5, self.neurons[n_name].sections[sec_name].h_sec)
+        stim.amp = 10.0
+        stim.delay = 5.0
+        stim.dur = 1.0
+    def add_synaps(self, sec_id1, sec_id2):
+        pass
     def finish(self):
         """
         Do nothing yet
