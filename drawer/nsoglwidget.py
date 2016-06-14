@@ -53,7 +53,7 @@ class NSWidget(QGLWidget):
         self.setMouseTracking(True)
         self.__init_vars(nrn)
         self.look_draw_state = False
-        self.ifPause = False
+        self.ifPause = True
         self.parent = NSWindow
 
     def __init_vars(self, nrn):
@@ -132,7 +132,7 @@ class NSWidget(QGLWidget):
         glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT| GL_STENCIL_BUFFER_BIT)
 
         neurons = self.nrn.neurons
-
+        #return
         # Draw all neurons
         for k, n in neurons.iteritems():
             if n.selected:
@@ -141,13 +141,8 @@ class NSWidget(QGLWidget):
                 self.neuron_color = (0.1, 0.1, 0.1, 0.1)
             for sec in n.sections.values():
                 for sub_sec in sec.sub_sections:
-                    #if self.max_diam < sub_sec.diam:
-                    #    max_diam = sub_sec.diam
-                    #    self.x_name = sub_sec.start_x
-                    #    self.y_name = sub_sec.start_y
                     sub_section_color = self.neuron_color
                     vol = math.fabs(sub_sec.get_param('v')[0])
-                    #    print sub_sec.get_param('v')[0]
                     if sub_sec.get_param('v')[0] > -40.0:
                         sub_section_color = (1 * 0.02 *(sub_sec.get_param('v')[0] + 40), 0.0, 0.0, 0.1)
                     elif sub_sec.selected:
@@ -262,8 +257,13 @@ class NSWidget(QGLWidget):
         glRotatef(self.cameraRotLag[1], 0.0, 1.0, 0.0)
         self.model_view = glGetFloatv(GL_MODELVIEW_MATRIX)
 
+    def mouseDoubleClickEvent(self, e):
+        """
+        Mouse press event handler
+        :param e: event
+        :return: none
+        """
 
-    def mouseDoubleClickEvent(self, e): #mousePressEvent
         self.old_x = e.x()
         self.old_y = e.y()
         if int(e.buttons()) == Qt.LeftButton:
@@ -279,6 +279,7 @@ class NSWidget(QGLWidget):
                                     n.selected = True
                                     val.selected = True
                                     sub_sec.selected = True
+                                    self.nrn.add_stim(0.2, 2, 60)
                                     for sec1, val1 in n.sections.iteritems():
                                         if sec1 != sec:
                                             self.neuronSelectionChanged.emit(sec1, val1.selected)

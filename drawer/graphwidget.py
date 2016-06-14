@@ -124,13 +124,13 @@ class NSGraphWidget(QWidget):
             sub_sec = None
             result = []
             for k, n in self.nrn.neurons.iteritems():
-                sub_sec = n.get_selected_section()
+                sub_sec = n.get_selected_sub_section()
                 if sub_sec != None:
                     result.append(sub_sec.get_param('v')[0])
             if len(result) != 0:
                 yield self.nrn.get_time(), result
             else:
-                yield 0, [-40.0]
+                yield 0, [-70.0]
 
     def on_key_press(self, event):
         print('you pressed', event.key)
@@ -139,7 +139,7 @@ class NSGraphWidget(QWidget):
         key_press_handler(event, self.canvas, self.mpl_toolbar)
 
     def init(self):
-        self.axes.set_ylim(-50.1, 20.1)
+        self.axes.set_ylim(-70.1, 70.1)
         self.axes.set_xlim(0, 40)
         del self.xdata[:]
         del self.ydata[:]

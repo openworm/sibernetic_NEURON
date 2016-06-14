@@ -70,6 +70,7 @@ class Section:
         self.sub_sections = []
         self.selected = False
         self.parent = parent
+        self.is_soma = False
 
     def init_section(self, h, params):
         self.nseg = h.cas().nseg
@@ -136,6 +137,28 @@ class MyNeuron:
                 self.sections[section_name].init_section(h, params)
             index += 1
 
+    def init_sections(self, h, params, section_list):
+        """
+
+        :param h:
+        :param params:
+        :param section_list: list with sections names
+        :return:
+        """
+        if not section_list:
+            print 'No sections for current neuron %s'%(self.name)
+            return
+        index = 0
+        for h_sec in h.allsec():
+            section_name = h_sec.name()
+            if section_name in section_list:
+                self.sections[section_name] = Section(index, section_name, self)
+                self.sections[section_name].init_section(h, params)
+                if section_list.index(section_name) == 0:
+                    self.sections[section_name].is_soma = True
+            index += 1
+
+
     def update_sec_data(self, params):
         """
         Update data about params for section
@@ -155,9 +178,24 @@ class MyNeuron:
             for sub_sec in sec.sub_sections:
                 sub_sec.selected = False
 
+    def get_selected_sub_section(self):
+        """
+        Get selected subsection in selected section
+
+        :return: SubSection object
+        """
+        if not self.selected:
+            return None
+        sec = self.get_selected_section()
+        if sec is None:
+            return None
+        for sub_sec in sec.sub_sections:
+            if sub_sec.selected:
+                return sub_sec
+
     def get_selected_section(self):
         """
-        Ger selected subsection in selected section
+        Get selected subsection in selected section
 
         :return: SubSection object
         """
@@ -165,6 +203,4 @@ class MyNeuron:
             return None
         for name, sec in self.sections.iteritems():
             if sec.selected:
-                for sub_sec in sec.sub_sections:
-                    if sub_sec.selected:
-                        return sub_sec
+                return sec

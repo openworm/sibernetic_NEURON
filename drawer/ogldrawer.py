@@ -33,12 +33,13 @@ from __future__ import with_statement
 from PyQt4 import QtCore, QtGui
 import os
 import sys
+
+from isigwidget import NSISigWidget
 from nsoglwidget import NSWidget
 from graphwidget import NSGraphWidget
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-from neuron import h
 
 
 try:
@@ -63,9 +64,11 @@ nrn = None
 
 class NSWindow(QtGui.QMainWindow):
     def __init__(self):
+        global nrn
         super(NSWindow, self).__init__()
         self.resize(1492, 989)
         self.graph_window = None
+        self.isig_window = None
         self.glWidget = NSWidget(nrn, self)
         self.glWidget.neuronSelectionChanged.connect(self.neuronsListSelectByName)
         self.setCentralWidget(self.glWidget)
@@ -112,6 +115,11 @@ class NSWindow(QtGui.QMainWindow):
         draw_graph_action.setText(_translate("MainWindow", "Draw Graph ...", None))
         self.connect(draw_graph_action, QtCore.SIGNAL('triggered()'), self.draw_graph)
 
+        input_signal_action = QtGui.QAction(self)
+        input_signal_action.setText(_translate("MainWindow", "Input signal ...", None))
+        input_signal_action.setToolTip(_translate("MainWindow", "Input signal into selected section", None)) # TODO what to do in case if many section of many neurons is selected ??
+        self.connect(input_signal_action, QtCore.SIGNAL('triggered()'), self.input_signal)
+
         about_action = QtGui.QAction(self)
         about_action.setText(_translate("MainWindow", "About", None))
         self.connect(about_action, QtCore.SIGNAL('triggered()'), self.actionAbout)
@@ -127,6 +135,7 @@ class NSWindow(QtGui.QMainWindow):
         menu_view.addAction(zoom_plus_action)
         menu_view.addAction(zoom_minus_action)
         self.tools.addAction(draw_graph_action)
+        self.tools.addAction(input_signal_action)
         menu_help.addAction(about_action)
 
     def create_slider(self):
@@ -199,6 +208,7 @@ class NSWindow(QtGui.QMainWindow):
         self.tools.addAction(self.myToolbar.toggleViewAction())
 
     def speedChange(self):
+        global nrn
         nrn.simulation_speed = self.speedSlider.value()
         self.speed_label.setText('Speed up simulation in %d' % self.speedSlider.value())
 
@@ -219,9 +229,16 @@ class NSWindow(QtGui.QMainWindow):
         self.statusBar().showMessage("Current time of simulation:        " + str(time))
 
     def draw_graph(self):
+        global nrn
         if self.graph_window is None:
             self.graph_window = NSGraphWidget(nrn, 400)
         self.graph_window.show()
+
+    def input_signal(self):
+        global nrn
+        if self.isig_window is None:
+            self.isig_window = NSISigWidget(nrn)
+        self.isig_window.show()
 
     def open_file_dialog(self):
         """
@@ -278,32 +295,36 @@ class NSWindow(QtGui.QMainWindow):
         self.neuronsList.itemDoubleClicked.connect(self.neuronsList_clicked)
 
     def neuronsList_clicked(self, item, m):
-        if str(item.text(m)).find('_') != -1:
-            for name, val in nrn.neurons.iteritems():
-                if str(item.text(m)).startswith(name):
-                    s = val.sections[str(item.text(m))]
-
-                    if not s.selected:
+        """
+        TODO Write documentation
+        :param item:
+        :param m:
+        :return:
+        """
+        if item.parent != None:
+            neuron = nrn.neurons[str(item.parent().text(m))] # here I suppose that we have only 2 layer
+            sec_list = neuron.sections
+            s = sec_list[str(item.text(m))]
+            if not s.selected:
+                s.selected = True
+                self.neuronsListSelectByName(neuron.name, True)
+                for k, sec in sec_list.iteritems():
+                    if k != str(item.text(m)):
+                        self.neuronsListSelectByName(k, False)
+                for sub_sec in s.sub_sections:
+                    if not sub_sec.selected:
+                        neuron.turn_off_selection()
+                        neuron.selected = True
                         s.selected = True
-                        self.neuronsListSelectByName(name, True)
-                        for k, sec in val.sections.iteritems():
-                            if k != str(item.text(m)):
-                                self.neuronsListSelectByName(k, False)
-
-                        for sub_sec in s.sub_sections:
-                            if not sub_sec.selected:
-                                val.turn_off_selection()
-                                val.selected = True
-                                s.selected = True
-                                sub_sec.selected = True
-                            else:
-                                self.neuronsListSelectByName(name, False)
-                                self.neuronsListSelectByName(str(item.text(m)), False)
-                                val.turn_off_selection()
+                        sub_sec.selected = True
                     else:
-                        s.selected = False
-                        for sub_sec in s.sub_sections:
-                            sub_sec.selected = False
+                        self.neuronsListSelectByName(neuron.name, False)
+                        self.neuronsListSelectByName(str(item.text(m)), False)
+                        neuron.turn_off_selection()
+            else:
+                s.selected = False
+                for sub_sec in s.sub_sections:
+                    sub_sec.selected = False
         else:
             n = nrn.neurons[str(item.text(m))]
             if n.selected:
@@ -319,7 +340,7 @@ class NSWindow(QtGui.QMainWindow):
         item.setSelected(isSelect)
 
 
-def load_model(model_filename='./model/_ria.hoc', tstop=400):
+def load_model(model_filename='./models/celegans/_ria.hoc', tstop=400):
     """
     Load and initialize model from file
     on first step it run nrnivmodl in folder with model and gap.mod file to generate all
@@ -336,6 +357,8 @@ def load_model(model_filename='./model/_ria.hoc', tstop=400):
     osplatform = sys.platform
     if osplatform.find('linux') != -1 or osplatform.find('darwin') != -1:
         os.system('nrnivmodl')
+        os.system('rm -rf %s/x86_64'%(old_dir))
+        os.system('cp -r ./x86_64 %s'%(old_dir))
     elif osplatform.find('win'):
         pass
     print 'Current work directory is ' + os.getcwd()
@@ -349,9 +372,9 @@ def run_window():
     Run main Qt window (sudo apt-get install python-qt4ow)
     """
     load_model() #(model_filename='./model/avm.hoc')
-    #load_model(model_filename='./testmodel/j8.hoc')
+    #load_model(model_filename='./models/modeldb/cells/mydemo.hoc') #model from modeldb site link https://senselab.med.yale.edu/modeldb/showModel.cshtml?model=2488&file=/cells/cells/j8.hoc
     app = QApplication(["Neuron<->Python interactive work environment"])
     window = NSWindow()
     window.show()
-    app.exec_()
+    sys.exit(app.exec_())
 

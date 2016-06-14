@@ -20,7 +20,7 @@
 #
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-#
+#pass
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -60,26 +60,30 @@ class NrnSimulator:
                 raise AttributeError(
                     u"File: {0:s} doesn't exist please check the path to the file or name of file".format(model_name))
             from neuron import h
-            h.finitialize()
-            h.load_file("stdrun.hoc")
-            h.load_file(1, model_name) # http://www.neuron.yale.edu/neuron/static/new_doc/programming/dynamiccode.html#
+            #h.finitialize()
+            #h.load_file("stdrun.hoc")
+            h.load_file("nrngui.hoc")
+            h.load_file(model_name) # http://www.neuron.yale.edu/neuron/static/new_doc/programming/dynamiccode.html#
             h.init()
             h.tstop = tstop
             self.out_data = {}
             self.neurons_names = []
+            self.neuron_sections = {}
             self.neurons = {}
             #self.sections = {}
             self.__find_all_neurons()
-            if len(self.neurons_names) == 0:
+            if len(self.neuron_sections.keys()) == 0:
                 raise RuntimeError(u"In File: {0:s} with model no any neurons has been found. Please check the "
                                    u"the file".format(model_name))
             print self.neurons_names
-            for name in self.neurons_names: #TODO put check that we haven't added this neuron yet in dictionary neurons
-                self.neurons[name] = MyNeuron(name, index=self.neurons_names.index(name))
-
+            #for name in self.neurons_names: #TODO put check that we haven't added this neuron yet in dictionary neurons
+            #    self.neurons[name] = MyNeuron(name, index=self.neurons_names.index(name))
+            for n_name, val in self.neuron_sections.iteritems():
+                self.neurons[n_name] = MyNeuron(n_name, index=self.neuron_sections.keys().index(n_name))
+                self.neurons[n_name].init_sections(h, paramVec, self.neuron_sections[n_name])
             # Initialization of segments and data arrays
-            for k, val in self.neurons.iteritems():
-                val.init_sections(h, paramVec)
+            #for k, val in self.neurons.iteritems():
+            #    val.init_sections(h, paramVec, )
                 #for sec in val.sections:
                 #    self.sections[]
             self.__index_sub_segments()
@@ -101,20 +105,60 @@ class NrnSimulator:
                 h.advance()
             self.__update_data()
         else:
-            print 'Simulation is finished'
-            sys.exit(0)
+            #print 'Simulation is finished'
+            #sys.exit(0)
+            pass
+
+    def __find_next_layer(self, sections, first_iter):
+        ret_sections = []
+        if first_iter:
+            ret_sections = [s for s in sections if s.parent is None]
+        else:
+            for s in sections:
+                for neuron_n, val in self.neuron_sections.iteritems():
+                    if s.parent.name() in val:
+                        s.neuron_n = neuron_n
+                        ret_sections.append(s)
+                        break
+        return ret_sections
 
     def __find_all_neurons(self):
         """
-        Search neurons names from hoc segment name
+         Search neurons names from hoc section name
+         First it generate list of sections with some info like hoc section pointer parent
+         hoc section pointer if it has other case it equal to None. Than it run loop in which it runs function
+         __find_next_layer which is generate list of section parent section of which is in self.neuron_sections yet
+         do that until len(sections_) not equal to zero
         """
+        class Sec:
+            def __init__(self):
+                self.parent = None
+                self.sec = None
+                self.neuron_n = ''
         from neuron import h
+        sections_ = []
+        iteration = 0
         for h_sec in h.allsec():
-            section_name = h_sec.name()
-            index = section_name.find('_')
-            if index != -1:
-                self.neurons_names.append(section_name[0:index])
-
+            s = Sec()
+            s.sec = h_sec
+            if h.SectionRef().has_parent():
+                s.parent = h.SectionRef().parent
+            sections_.append(s)
+        while len(sections_) != 0:
+            #build list of cell from list of sections if section has no parent it should mean that this is soma section
+            #so this is start of section
+            temp_sections = self.__find_next_layer(sections_, iteration == 0)
+            if iteration == 0:
+                for i in xrange(len(temp_sections)):
+                    current_neuron_name = 'Neuron_' + str(i)
+                    temp_sections[i].neuron_n = current_neuron_name
+                    self.neuron_sections[current_neuron_name] = [temp_sections[i].sec.name()]
+            else:
+                for i in xrange(len(temp_sections)):
+                    self.neuron_sections[temp_sections[i].neuron_n].append(temp_sections[i].sec.name())
+            sections_ = [s for s in sections_ if s not in temp_sections]
+            iteration += 1
+        print 'Number of founded neurons is %s list is %s'%(len(self.neuron_sections.keys()), self.neuron_sections.keys())
 
     def get_time(self):
         from neuron import h
@@ -126,22 +170,39 @@ class NrnSimulator:
         for k, v in self.neurons.iteritems():
             for sec in v.sections.values():
                 for sub_sec in sec.sub_sections:
-                    #if not(index in unique_indexes):
                     unique_indexes.append(index)
-                    #else:
                     index += 1
                     sub_sec.index = index
         print index
 
-    def add_stim(self, n_name, sec_name=10):
+    def add_stim(self, amp, delay, dur, n_name=''):
+        """
+        Add stimul into selected section
+        :param amp:
+        :param delay:
+        :param dur:
+        :param n_name:
+        :param sec_name:
+        """
         #TODO describe all in detail
         from neuron import h
-        stim = h.IClamp(0.5, self.neurons[n_name].sections[sec_name].h_sec)
-        stim.amp = 10.0
-        stim.delay = 5.0
-        stim.dur = 1.0
+        selected_neurons = []
+        if n_name =='':
+            selected_neurons = [neuron for n_name, neuron in self.neurons.iteritems() if neuron.selected]
+        elif n_name != '':
+            selected_neurons.append(self.neurons[n_name])
+        if len(selected_neurons) == 0:
+            print 'No selected neurons. Please select.'
+            return
+        for neuron in selected_neurons:
+            stim = h.IClamp(0.5, neuron.get_selected_section().h_sec)
+            stim.amp = amp
+            stim.delay = delay
+            stim.dur = dur
+
     def add_synaps(self, sec_id1, sec_id2):
         pass
+
     def finish(self):
         """
         Do nothing yet
