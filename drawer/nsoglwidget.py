@@ -124,6 +124,12 @@ class NSWidget(QGLWidget):
         glVertex3fv(v2)
         glEnd()
 
+    def __draw_section(self, sec):
+        if self.is_transforming:
+            self.__draw_line(sec)
+        else:
+            self.__cylinder_2p(sec, 20)
+
     def paintGL(self):
         """
         Display function draws scene
@@ -136,23 +142,27 @@ class NSWidget(QGLWidget):
         # Draw all neurons
         for k, n in neurons.iteritems():
             if n.selected:
-                self.neuron_color = (0.0, 0.5, 0.5, 0.1) #(0.1, 0.8, 0.0, 0.1) (0.0, 1.0, 1.0, 0.3) #(0.0, 0.5, 0.5, 0.1)
+                self.neuron_color = [0.0, 0.5, 0.5, 0.1] #(0.1, 0.8, 0.0, 0.1) (0.0, 1.0, 1.0, 0.3) #(0.0, 0.5, 0.5, 0.1)
             else:
-                self.neuron_color = (0.1, 0.1, 0.1, 0.1)
+                self.neuron_color = [0.1, 0.1, 0.1, 0.1]
             for sec in n.sections.values():
                 for sub_sec in sec.sub_sections:
                     sub_section_color = self.neuron_color
                     vol = math.fabs(sub_sec.get_param('v')[0])
+                    stencil_index = sub_sec.index + 1
+                    stencil_offset = 0
+                    if stencil_index > 255:
+                        stencil_offset = stencil_index / 255
+                        stencil_index = stencil_index % 255
                     if sub_sec.get_param('v')[0] > -40.0:
-                        sub_section_color = (1 * 0.02 *(sub_sec.get_param('v')[0] + 40), 0.0, 0.0, 0.1)
+                        sub_section_color = [1 * 0.02 *(sub_sec.get_param('v')[0] + 40), 0.0, 0.0, stencil_offset/255.0]
                     elif sub_sec.selected:
-                        sub_section_color = (0.7, 0.6, 0.0, 0.1)
-                    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, sub_section_color)
-                    glStencilFunc(GL_ALWAYS, sub_sec.index + 1, -1)
-                    if self.is_transforming:
-                        self.__draw_line(sub_sec)
+                        sub_section_color = [0.7, 0.6, 0.0, stencil_offset/255.0]
                     else:
-                        self.__cylinder_2p(sub_sec, 20)
+                        sub_section_color[3] =  stencil_offset/255.0
+                    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, sub_section_color)
+                    glStencilFunc(GL_ALWAYS, stencil_index, -1)
+                    self.__draw_section(sub_sec)
 
             #glWindowPos2f(self.x_name * 2.65 + 550, self.y_name * 2.65 + 320)
             #glColor(0.5, 1.0, 0.0, 1.0)
@@ -259,7 +269,10 @@ class NSWidget(QGLWidget):
 
     def mouseDoubleClickEvent(self, e):
         """
-        Mouse press event handler
+        Mouse press event handler selection/unselect of objects
+        on scene one problem of stencil buffer is that number it could
+        indicate only 255 objects but we save offset in alpha chanel of
+        color buffer so we increase that value
         :param e: event
         :return: none
         """
@@ -268,20 +281,24 @@ class NSWidget(QGLWidget):
         self.old_y = e.y()
         if int(e.buttons()) == Qt.LeftButton:
             index = glReadPixels(e.x(),  self.height() - e.y() - 1, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_INT)
+            color = glReadPixels(e.x(),  self.height() - e.y() - 1, 1, 1, GL_ALPHA, GL_FLOAT)
             if index[0][0] != 0:
-                #print "selected object " + str(index[0][0] - 1)
+                alpha = 255 * int(255.0 * color[0][0])
+                id = (index[0][0] - 1) + alpha
+                print "selected object " + str(id)
                 for k, n in self.nrn.neurons.iteritems():
                     for sec, val in n.sections.iteritems():
                         for sub_sec in val.sub_sections:
-                            if index[0][0] - 1 == sub_sec.index:
+                            if id == sub_sec.index:
                                 if not sub_sec.selected:
                                     n.turn_off_selection()
                                     n.selected = True
                                     val.selected = True
                                     sub_sec.selected = True
-                                    for sec1, val1 in n.sections.iteritems():
-                                        if sec1 != sec:
-                                            self.neuronSelectionChanged.emit(sec1, val1.selected)
+                                    self.neuronSelectionChanged.emit(sec, val.selected)
+                                    #for sec1, val1 in n.sections.iteritems():
+                                    #    if sec1 != sec:
+                                    #        self.neuronSelectionChanged.emit(sec1, val1.selected)
                                 else:
                                     n.turn_off_selection()
                         self.neuronSelectionChanged.emit(sec, val.selected)

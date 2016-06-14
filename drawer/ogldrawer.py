@@ -371,8 +371,8 @@ def run_window():
     """
     Run main Qt window (sudo apt-get install python-qt4ow)
     """
-    load_model() #(model_filename='./model/avm.hoc')
-    #load_model(model_filename='./models/modeldb/cells/mydemo.hoc') #model from modeldb site link https://senselab.med.yale.edu/modeldb/showModel.cshtml?model=2488&file=/cells/cells/j8.hoc
+    #load_model() #(model_filename='./model/avm.hoc')
+    load_model(model_filename='./models/modeldb/cells/mydemo.hoc') #model from modeldb site link https://senselab.med.yale.edu/modeldb/showModel.cshtml?model=2488&file=/cells/cells/j8.hoc
     app = QApplication(["Neuron<->Python interactive work environment"])
     window = NSWindow()
     window.show()

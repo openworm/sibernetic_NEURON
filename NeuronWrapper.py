@@ -67,15 +67,12 @@ class NrnSimulator:
             h.init()
             h.tstop = tstop
             self.out_data = {}
-            self.neurons_names = []
             self.neuron_sections = {}
             self.neurons = {}
-            #self.sections = {}
             self.__find_all_neurons()
             if len(self.neuron_sections.keys()) == 0:
                 raise RuntimeError(u"In File: {0:s} with model no any neurons has been found. Please check the "
                                    u"the file".format(model_name))
-            print self.neurons_names
             #for name in self.neurons_names: #TODO put check that we haven't added this neuron yet in dictionary neurons
             #    self.neurons[name] = MyNeuron(name, index=self.neurons_names.index(name))
             for n_name, val in self.neuron_sections.iteritems():
@@ -165,14 +162,14 @@ class NrnSimulator:
         return h.t
 
     def __index_sub_segments(self):
-        unique_indexes = []
         index = 0
-        for k, v in self.neurons.iteritems():
-            for sec in v.sections.values():
+        a = []
+        for neuron in self.neurons.values():
+            for sec in neuron.sections.values():
                 for sub_sec in sec.sub_sections:
-                    unique_indexes.append(index)
-                    index += 1
+                    a.append(index)
                     sub_sec.index = index
+                    index += 1
         print index
 
     def add_stim(self, amp, delay, dur, n_name=''):
