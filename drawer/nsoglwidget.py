@@ -279,7 +279,6 @@ class NSWidget(QGLWidget):
                                     n.selected = True
                                     val.selected = True
                                     sub_sec.selected = True
-                                    self.nrn.add_stim(0.2, 2, 60)
                                     for sec1, val1 in n.sections.iteritems():
                                         if sec1 != sec:
                                             self.neuronSelectionChanged.emit(sec1, val1.selected)
