@@ -72,6 +72,16 @@ class Section:
         self.parent = parent
         self.is_soma = False
 
+    def get_mass_center(self):
+        import numpy as np
+        center = np.array([0.0, 0.0, 0.0])
+        for sub_s in self.sub_sections:
+            center[0] += (sub_s.end_x - sub_s.start_x)/2.0
+            center[1] += (sub_s.end_y - sub_s.start_y)/2.0
+            center[2] += (sub_s.end_z - sub_s.start_z)/2.0
+        center /= float(len(self.sub_sections))
+        return center
+
     def init_section(self, h, params):
         self.nseg = h.cas().nseg
         self.h_sec = h.cas()
@@ -154,10 +164,21 @@ class MyNeuron:
             if section_name in section_list:
                 self.sections[section_name] = Section(index, section_name, self)
                 self.sections[section_name].init_section(h, params)
-                if section_list.index(section_name) == 0:
-                    self.sections[section_name].is_soma = True
+                #if section_list.index(section_name) == 0:
+                #    self.sections[section_name].is_soma = True
             index += 1
+        self.__find_soma()
 
+    def __find_soma(self):
+        cur_max_sec = None
+        val = 0.0
+        for sec in self.sections.values():
+            sorted_sub_sections_list = sorted(sec.sub_sections, key=lambda ss: ss.diam, reverse=True) #sorted by diam of subsection
+            if len(sorted_sub_sections_list) != 0:
+                if sorted_sub_sections_list[0].diam > val:
+                    cur_max_sec = sec
+                    val = sorted_sub_sections_list[0].diam
+        cur_max_sec.is_soma = True
 
     def update_sec_data(self, params):
         """

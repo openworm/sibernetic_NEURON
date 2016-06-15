@@ -87,8 +87,6 @@ class NSWindow(QtGui.QMainWindow):
         self.timer.timeout.connect(self.print_time)
         self.timer.start(0)
 
-        #self.neurons_names()
-
     def create_menu(self):
         exit = QtGui.QAction(self)
         exit.setText(_translate("MainWindow", "Exit", None))
@@ -122,7 +120,7 @@ class NSWindow(QtGui.QMainWindow):
 
         about_action = QtGui.QAction(self)
         about_action.setText(_translate("MainWindow", "About", None))
-        self.connect(about_action, QtCore.SIGNAL('triggered()'), self.actionAbout)
+        self.connect(about_action, QtCore.SIGNAL('triggered()'), self.about_action)
 
         menu_bar = self.menuBar()
         menu_file = menu_bar.addMenu("&File")
@@ -147,15 +145,6 @@ class NSWindow(QtGui.QMainWindow):
         slider.setTickPosition(QSlider.TicksBelow)
         return slider
 
-    def neurons_names(self):
-        l = 1
-        for z in nrn.neurons_names: #self.glWidget.nrn.neurons:
-            label = QtGui.QLabel(z, self.glWidget)
-            label.setAutoFillBackground(False)
-            label.setStyleSheet("background-color: rgba(128, 128, 128, 255)")
-            label.move(50, l)
-            l+=20
-
     def create_toolbar(self):
         self.myToolbar = QtGui.QToolBar("ToolBar")
         self.addToolBar(Qt.BottomToolBarArea, self.myToolbar)
@@ -165,7 +154,7 @@ class NSWindow(QtGui.QMainWindow):
         self.speedSlider.setValue(1)
         #self.speed_label.setAlignment(Qt)
 
-        self.speedSlider.valueChanged.connect(self.speedChange)
+        self.speedSlider.valueChanged.connect(self.change_sim_speed)
 
         left_spacer = QtGui.QWidget()
         left_spacer.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
@@ -207,7 +196,7 @@ class NSWindow(QtGui.QMainWindow):
         self.myToolbar.addWidget(right_spacer)
         self.tools.addAction(self.myToolbar.toggleViewAction())
 
-    def speedChange(self):
+    def change_sim_speed(self):
         global nrn
         nrn.simulation_speed = self.speedSlider.value()
         self.speed_label.setText('Speed up simulation in %d' % self.speedSlider.value())
@@ -259,7 +248,7 @@ class NSWindow(QtGui.QMainWindow):
         """
         text, result = QtGui.QInputDialog.getText(self, " ", "Enter the neuron's name")
 
-    def actionAbout(self):
+    def about_action(self):
         QtGui.QMessageBox.about(self, "About NEURON<->Python work environment",
                                 "Sibernetic-NEURON using python-NEURON interface "
                                 "for interraction with NEURON simulator. Script is "
@@ -301,7 +290,7 @@ class NSWindow(QtGui.QMainWindow):
         :param m:
         :return:
         """
-        if item.parent != None:
+        if item.parent() != None:
             neuron = nrn.neurons[str(item.parent().text(m))] # here I suppose that we have only 2 layer
             sec_list = neuron.sections
             s = sec_list[str(item.text(m))]
@@ -371,8 +360,8 @@ def run_window():
     """
     Run main Qt window (sudo apt-get install python-qt4ow)
     """
-    #load_model() #(model_filename='./model/avm.hoc')
-    load_model(model_filename='./models/modeldb/cells/mydemo.hoc') #model from modeldb site link https://senselab.med.yale.edu/modeldb/showModel.cshtml?model=2488&file=/cells/cells/j8.hoc
+    load_model() #(model_filename='./model/avm.hoc')
+    #load_model(model_filename='./models/modeldb/cells/mydemo.hoc') #model from modeldb site link https://senselab.med.yale.edu/modeldb/showModel.cshtml?model=2488&file=/cells/cells/j8.hoc
     app = QApplication(["Neuron<->Python interactive work environment"])
     window = NSWindow()
     window.show()

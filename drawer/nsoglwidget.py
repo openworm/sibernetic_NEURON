@@ -81,9 +81,6 @@ class NSWidget(QGLWidget):
         self.axis_y = np.array([0.0, 1.0, 0.0])
         self.axis_z = np.array([0.0, 0.0, 1.0])
         self.is_transforming = False
-        #self.max_diam = 0
-        #self.x_name = 0
-        #self.y_name = 0
 
     def __cylinder_2p(self, s, dim):
         """
@@ -97,8 +94,8 @@ class NSWidget(QGLWidget):
         5) draw cylinder
         """
         diam_scale = 1 / self.scale
-        v1 = np.array([s.start_x * self.scale, s.start_y * self.scale, s.start_z * self.scale])
-        v2 = np.array([s.end_x * self.scale, s.end_y * self.scale, s.end_z * self.scale])
+        v1 = np.array([s.start_x, s.start_y, s.start_z]) * self.scale
+        v2 = np.array([s.end_x, s.end_y, s.end_z]) * self.scale
         v2r = v2 - v1
         # the rotation axis is the cross product between Z and v2r
         ax = np.cross(self.axis_z, v2r)
@@ -118,8 +115,8 @@ class NSWidget(QGLWidget):
 
     def __draw_line(self, s):
         glBegin(GL_LINES)
-        v1 = np.array([s.start_x * self.scale, s.start_y * self.scale, s.start_z * self.scale])
-        v2 = np.array([s.end_x * self.scale, s.end_y * self.scale, s.end_z * self.scale])
+        v1 = np.array([s.start_x, s.start_y, s.start_z]) * self.scale
+        v2 = np.array([s.end_x, s.end_y, s.end_z]) * self.scale
         glVertex3fv(v1)
         glVertex3fv(v2)
         glEnd()
@@ -128,7 +125,7 @@ class NSWidget(QGLWidget):
         if self.is_transforming:
             self.__draw_line(sec)
         else:
-            self.__cylinder_2p(sec, 20)
+            self.__cylinder_2p(sec, 15)
 
     def paintGL(self):
         """
@@ -138,14 +135,16 @@ class NSWidget(QGLWidget):
         glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT| GL_STENCIL_BUFFER_BIT)
 
         neurons = self.nrn.neurons
-        #return
         # Draw all neurons
-        for k, n in neurons.iteritems():
+        for neuron_name, n in neurons.iteritems():
             if n.selected:
-                self.neuron_color = [0.0, 0.5, 0.5, 0.1] #(0.1, 0.8, 0.0, 0.1) (0.0, 1.0, 1.0, 0.3) #(0.0, 0.5, 0.5, 0.1)
+                self.neuron_color = [0.0, 0.5, 0.5, 0.1]
             else:
                 self.neuron_color = [0.1, 0.1, 0.1, 0.1]
             for sec in n.sections.values():
+                if sec.is_soma:
+                    pass
+                    #self.__draw_name(sec, neuron_name)
                 for sub_sec in sec.sub_sections:
                     sub_section_color = self.neuron_color
                     vol = math.fabs(sub_sec.get_param('v')[0])
@@ -164,12 +163,20 @@ class NSWidget(QGLWidget):
                     glStencilFunc(GL_ALWAYS, stencil_index, -1)
                     self.__draw_section(sub_sec)
 
-            #glWindowPos2f(self.x_name * 2.65 + 550, self.y_name * 2.65 + 320)
-            #glColor(0.5, 1.0, 0.0, 1.0)
-            #glutBitmapString(GLUT_BITMAP_HELVETICA_12, k)
+    glFlush()
 
-        glFlush()
-
+    def __draw_name(self, sec, neuron_name):
+        """
+        Figure out why this doesn't work correctly for now
+        :param sec: soma section
+        :param neuron_name: string neuron name
+        :return: None
+        """
+        cen = sec.get_mass_center() * self.scale
+        glColor3f(1.0, 0.0, 0.0)
+        glRasterPos3f(cen[0], cen[1], cen[2])
+        for ch in neuron_name:
+            glutBitmapCharacter(GLUT_BITMAP_9_BY_15, ctypes.c_int(ord(ch)))
 
     def resizeGL(self, width, height):
         """
