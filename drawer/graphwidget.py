@@ -30,19 +30,17 @@
 # USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from __future__ import print_function
-import sys
 
-import numpy as np
-from matplotlib.figure import Figure
 from matplotlib.backend_bases import key_press_handler
 from matplotlib.backends.backend_qt4agg import (
     FigureCanvasQTAgg as FigureCanvas,
     NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.backends import qt4_compat
+
 use_pyside = qt4_compat.QT_API == qt4_compat.QT_API_PYSIDE
 
 import matplotlib.animation as animation
-import math
+from matplotlib.pyplot import *
 
 if use_pyside:
     from PySide.QtCore import *
@@ -59,12 +57,13 @@ class NSGraphWidget(QWidget):
         self.time_limit = time_limit
         self.create_main_frame()
         self.on_draw()
+        self.legend_list = []
 
     def create_main_frame(self):
         mainLayout = QHBoxLayout()
         self.main_frame = QWidget()
 
-        self.fig = Figure((5.0, 4.0), dpi=100)
+        self.fig = Figure((7.0, 7.0), dpi=100)
         self.canvas = FigureCanvas(self.fig)
         self.canvas.setParent(self.main_frame)
         self.canvas.setFocusPolicy(Qt.StrongFocus)
@@ -83,17 +82,17 @@ class NSGraphWidget(QWidget):
 
     def run(self, data):
         # update the data
-        t, y = data
+        t, y, names = data
         self.xdata.append(t)
         self.ydata.append(y)
         xmin, xmax = self.axes.get_xlim()
         ymin, ymax = self.axes.get_ylim()
-        #self.lines = []
+        # self.lines = []
         if t >= xmax:
-            self.axes.set_xlim(xmin, 2*xmax)
+            self.axes.set_xlim(xmin, 2 * xmax)
             self.axes.figure.canvas.draw()
         if y[0] >= ymax:
-            self.axes.set_ylim(xmin, 2*ymax)
+            self.axes.set_ylim(xmin, 2 * ymax)
             self.axes.figure.canvas.draw()
         for i in xrange(len(self.ydata[-1])):
             if i == len(self.ydata[-1]) - 1 and i + 1 < len(self.lines):
@@ -104,10 +103,13 @@ class NSGraphWidget(QWidget):
                 if i < len(self.ydata[j]):
                     res.append(self.ydata[j][i])
             if i >= len(self.lines):
-                line, = self.axes.plot([], [], lw=1, label='Blue stars')
+                line, = self.axes.plot([], [], lw=1)
                 self.lines.append(line)
             self.lines[i].set_data(self.xdata[len(self.xdata) - len(res):], res)
-            #self.ani.legend(handles=[self.lines[i]])
+        legend = self.axes.legend(self.lines, names, fancybox=True)
+        for label in legend.get_texts():
+            label.set_fontsize('small')
+        # self.legend_list.append(legend(self.lines, ["Label 1"]))
         return self.lines
 
     def on_draw(self):
@@ -116,21 +118,25 @@ class NSGraphWidget(QWidget):
         self.lines = []
         self.texts = []
         self.xdata, self.ydata = [], []
-        self.ani = animation.FuncAnimation(self.fig, self.run, self.data_gen, blit=False, interval=10, repeat=False, init_func=self.init)
+        self.ani = animation.FuncAnimation(self.fig, self.run, self.data_gen, blit=False, interval=10, repeat=False,
+                                           init_func=self.init)
         self.canvas.draw()
 
     def data_gen(self, t=0):
         while self.nrn.get_time() < self.time_limit:
             sub_sec = None
             result = []
-            for k, n in self.nrn.neurons.iteritems():
-                sub_sec = n.get_selected_sub_section()
+            sec_names = []
+            param_name = ['v']
+            for neuron_name, n in self.nrn.neurons.iteritems():
+                sec_name, sub_sec = n.get_selected_sub_section()
                 if sub_sec != None:
                     result.append(sub_sec.get_param('v')[0])
+                    sec_names.append('v ' + neuron_name + ' ' + sec_name)
             if len(result) != 0:
-                yield self.nrn.get_time(), result
+                yield self.nrn.get_time(), result, sec_names
             else:
-                yield 0, [-70.0]
+                yield 0, [-70.0], sec_names
 
     def on_key_press(self, event):
         print('you pressed', event.key)
@@ -139,11 +145,11 @@ class NSGraphWidget(QWidget):
         key_press_handler(event, self.canvas, self.mpl_toolbar)
 
     def init(self):
+        self.axes.set_title('Voltage in selected sections',fontsize=16, fontweight='bold')
+        self.axes.set_xlabel('Time (s)')
+        self.axes.set_ylabel('Voltage (V)')
         self.axes.set_ylim(-70.1, 70.1)
         self.axes.set_xlim(0, 40)
         del self.xdata[:]
         del self.ydata[:]
-        line, = self.axes.plot([], [], lw=1)
-        line.set_data(self.xdata, self.ydata)
-        self.lines.append(line)
         return self.lines

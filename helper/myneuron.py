@@ -206,13 +206,13 @@ class MyNeuron:
         :return: SubSection object
         """
         if not self.selected:
-            return None
+            return '', None
         sec = self.get_selected_section()
         if sec is None:
             return None
         for sub_sec in sec.sub_sections:
             if sub_sec.selected:
-                return sub_sec
+                return sec.name, sub_sec
 
     def get_selected_section(self):
         """
