@@ -122,6 +122,12 @@ class Section:
         for s_sec in self.sub_sections:
             self.__update_data(params, s_sec)
 
+    def get_v(self):
+        max_v = self.sub_sections[0].params['v'][0]
+        for s_sec in self.sub_sections[1:]:
+             max_v = s_sec.params['v'][0] != max_v and s_sec.params['v'][0] or max_v
+        return max_v
+
 
 class MyNeuron:
     def __init__(self, name='', index=0):
@@ -225,3 +231,6 @@ class MyNeuron:
         for name, sec in self.sections.iteritems():
             if sec.selected:
                 return sec
+
+    def get_voltage(self, section_name):
+        return self.sections[section_name].get_v()

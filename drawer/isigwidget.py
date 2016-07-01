@@ -31,14 +31,7 @@
 
 from __future__ import with_statement
 
-from PyQt4 import QtCore, QtGui
-import os
-import sys
-from nsoglwidget import NSWidget
-from graphwidget import NSGraphWidget
-
 from PyQt4.QtGui import *
-from PyQt4.QtCore import *
 import threading
 
 class NSISigWidget(QWidget, threading.Thread):

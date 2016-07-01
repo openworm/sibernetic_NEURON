@@ -33,11 +33,6 @@ from __future__ import with_statement
 from PyQt4 import QtCore, QtGui
 import os
 import sys
-
-from isigwidget import NSISigWidget
-from nsoglwidget import NSWidget
-from graphwidget import NSGraphWidget
-
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
@@ -63,13 +58,16 @@ global nrn
 nrn = None
 
 class NSWindow(QtGui.QMainWindow):
-    def __init__(self):
+    def __init__(self, sibernetic_mode=False):
+        from isigwidget import NSISigWidget
+        from nsoglwidget import NSWidget
+        from graphwidget import NSGraphWidget
         global nrn
         super(NSWindow, self).__init__()
         self.resize(1492, 989)
         self.graph_window = None
         self.isig_window = None
-        self.glWidget = NSWidget(nrn, self)
+        self.glWidget = NSWidget(nrn, self, sibernetic_mode)
         self.glWidget.neuronSelectionChanged.connect(self.neuronsListSelectByName)
         self.setCentralWidget(self.glWidget)
         self.glWidget.show()
@@ -84,7 +82,7 @@ class NSWindow(QtGui.QMainWindow):
         self.statusBar().setVisible(True)
 
         self.timer = QTimer(self)
-        self.timer.timeout.connect(self.print_time)
+        self.timer.timeout.connect(self.show_time)
         self.timer.start(0)
 
     def create_menu(self):
@@ -163,13 +161,13 @@ class NSWindow(QtGui.QMainWindow):
         self.myToolbar.addWidget(left_spacer)
 
         pause_action = QtGui.QAction(QtGui.QIcon('drawer/icons/pause.png'), "Pause simulation", self)
-        self.connect(pause_action, QtCore.SIGNAL('triggered()'), self.action_Pause)
+        self.connect(pause_action, QtCore.SIGNAL('triggered()'), self.action_pause)
 
         stop_action = QtGui.QAction(QtGui.QIcon('drawer/icons/stop.png'), "Stop simulation", self)
         self.connect(stop_action, QtCore.SIGNAL('triggered()'), QtCore.SLOT('close()'))
 
         remove_action = QtGui.QAction(QtGui.QIcon('drawer/icons/undo.png'), "Remove all selections", self)
-        self.connect(remove_action, QtCore.SIGNAL('triggered()'), self.action_Remove_selection)
+        self.connect(remove_action, QtCore.SIGNAL('triggered()'), self.action_remove_selection)
 
         zoom_in = QtGui.QAction(QtGui.QIcon('drawer/icons/zoom-in.png'), "Zoom the model in", self)
         self.connect(zoom_in, QtCore.SIGNAL('triggered()'), self.glWidget.zoom_plus)
@@ -201,11 +199,10 @@ class NSWindow(QtGui.QMainWindow):
         nrn.simulation_speed = self.speedSlider.value()
         self.speed_label.setText('Speed up simulation in %d' % self.speedSlider.value())
 
-    def action_Pause(self):
-        #self.myToolbar.setStyleSheet("self.pause_action.QToolButton {background-color: rgba(128, 128, 130, 255)}")
+    def action_pause(self):
         self.glWidget.actionPause()
 
-    def action_Remove_selection(self):
+    def action_remove_selection(self):
         for p, n in nrn.neurons.iteritems():
             if n.selected:
                 n.turn_off_selection()
@@ -213,7 +210,7 @@ class NSWindow(QtGui.QMainWindow):
                 for sec, val in n.sections.iteritems():
                     self.neuronsListSelectByName(sec, False)
 
-    def print_time(self):
+    def show_time(self):
         time = "%.3f" % nrn.get_time()
         self.statusBar().showMessage("Current time of simulation:        " + str(time))
 
@@ -338,22 +335,28 @@ def load_model(model_filename='./models/celegans/_ria.hoc', tstop=400):
     :param tstop: time of duration of simulation
     """
     global nrn
-    if nrn != None:
+    if nrn is not None:
         nrn.finish()
     path, filename = os.path.split(str(model_filename))
     old_dir = os.path.abspath(os.getcwd())
     os.chdir(path)
-    osplatform = sys.platform
-    if osplatform.find('linux') != -1 or osplatform.find('darwin') != -1:
+    os_platform = sys.platform
+    filename = os.path.abspath(str(filename))
+    print path
+    if os_platform.find('linux') != -1 or os_platform.find('darwin') != -1:
         os.system('nrnivmodl')
-        os.system('rm -rf %s/x86_64'%(old_dir))
-        os.system('cp -r ./x86_64 %s'%(old_dir))
-    elif osplatform.find('win'):
+        os.system('rm -rf %s/x86_64' % old_dir)
+        os.system('cp -r ./x86_64 %s' % old_dir)
+        os.chdir(old_dir)
+    elif os_platform.find('win'):
         pass
     print 'Current work directory is ' + os.getcwd()
+    print "Version " + sys.version
     from NeuronWrapper import NrnSimulator
     nrn = NrnSimulator(filename, tstop=tstop)
     os.chdir(old_dir)
+
+    print 'model loaded'
 
 
 def run_window():
@@ -366,4 +369,17 @@ def run_window():
     window = NSWindow()
     window.show()
     sys.exit(app.exec_())
+
+
+def run_console(dt, filename, section_list):
+    print "Section lists " + str(section_list)
+    print "Simulation time step " + str(dt)
+    print "model file name " + filename
+    load_model(model_filename=filename)
+    nrn.gen_sib_sec_list(section_list)
+    nrn.set_dt(dt)
+    from tools.graphtool import graph_run
+    return graph_run(nrn)
+
+
 

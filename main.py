@@ -30,9 +30,30 @@
 # USE OR OTHER DEALINGS IN THE SOFTWARE.
 from __future__ import with_statement
 
-from drawer.ogldrawer import run_window
+import drawer
+from drawer.ogldrawer import run_window, run_console, nrn
 
 __author__ = 'Sergey Khayrulin'
 
+global g
+
+
+def run_init(dt, filename, section_list):
+    global g
+    g = run_console(dt, filename, section_list)
+
+
+def run_sim_one_step():
+    if drawer.ogldrawer.nrn is not None:
+        g.run()
+        return drawer.ogldrawer.nrn.one_step()
+    return []
+
 if __name__ != 'main':
     run_window()
+    #g = run_console(0.0, './models/celegans/_ria.hoc',['SMDDR_mus'])
+    #while 1:
+    #    run_sim_one_step()
+    #    g.run()
+    #pass
+

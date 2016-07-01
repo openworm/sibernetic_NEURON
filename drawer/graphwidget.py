@@ -62,17 +62,13 @@ class NSGraphWidget(QWidget):
     def create_main_frame(self):
         mainLayout = QHBoxLayout()
         self.main_frame = QWidget()
-
         self.fig = Figure((7.0, 7.0), dpi=100)
         self.canvas = FigureCanvas(self.fig)
         self.canvas.setParent(self.main_frame)
         self.canvas.setFocusPolicy(Qt.StrongFocus)
         self.canvas.setFocus()
-
         self.mpl_toolbar = NavigationToolbar(self.canvas, self.main_frame)
-
         self.canvas.mpl_connect('key_press_event', self.on_key_press)
-
         vbox = QVBoxLayout()
         vbox.addWidget(self.canvas)  # the matplotlib canvas
         vbox.addWidget(self.mpl_toolbar)

@@ -46,15 +46,16 @@ class NSWidget(QGLWidget):
 
     neuronSelectionChanged = pyqtSignal(unicode, bool)
 
-    def __init__(self, nrn, NSWindow):
+    def __init__(self, nrn, NSWindow, sibernetic_mode=False):
         glutInit(sys.argv)
         glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_STENCIL)
         super(NSWidget, self).__init__()
         self.setMouseTracking(True)
         self.__init_vars(nrn)
         self.look_draw_state = False
-        self.ifPause = True
+        self.is_pause = True
         self.parent = NSWindow
+        self.sibernetic_mode = sibernetic_mode
 
     def __init_vars(self, nrn):
         """
@@ -127,13 +128,32 @@ class NSWidget(QGLWidget):
         else:
             self.__cylinder_2p(sec, 15)
 
+    def __draw_reper(self):
+        width = 0 + 10
+        heigth = 0 + 10
+        glBegin(GL_LINES)
+        v_o = np.array([-width/2, -heigth/2, 0]) * self.scale
+        v_x = v_o + np.array([10, 0, 0]) * self.scale
+        v_y = v_o + np.array([0, 10, 0]) * self.scale
+        v_z = v_o + np.array([0, 0, -10]) * self.scale
+        glColor3i(255, 0, 0)
+        glVertex3fv(v_o)
+        glVertex3fv(v_x)
+        glColor3i(0, 255, 0)
+        glVertex3fv(v_o)
+        glVertex3fv(v_y)
+        glColor3i(0, 0, 255)
+        glVertex3fv(v_o)
+        glVertex3fv(v_z)
+        glEnd()
+
     def paintGL(self):
         """
         Display function draws scene
         """
         glClearStencil(0)
         glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT| GL_STENCIL_BUFFER_BIT)
-
+        self.__draw_reper()
         neurons = self.nrn.neurons
         # Draw all neurons
         for neuron_name, n in neurons.iteritems():
@@ -152,9 +172,9 @@ class NSWidget(QGLWidget):
                     stencil_offset = 0
                     if stencil_index > 255:
                         stencil_offset = stencil_index / 255
-                        stencil_index = stencil_index % 255
+                        stencil_index %= 255
                     if sub_sec.get_param('v')[0] > -40.0:
-                        sub_section_color = [1 * 0.02 *(sub_sec.get_param('v')[0] + 40), 0.0, 0.0, stencil_offset/255.0]
+                        sub_section_color = [1 * 0.02 * (sub_sec.get_param('v')[0] + 40), 0.0, 0.0, stencil_offset/255.0]
                     elif sub_sec.selected:
                         sub_section_color = [0.7, 0.6, 0.0, stencil_offset/255.0]
                     else:
@@ -162,7 +182,6 @@ class NSWidget(QGLWidget):
                     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, sub_section_color)
                     glStencilFunc(GL_ALWAYS, stencil_index, -1)
                     self.__draw_section(sub_sec)
-
     glFlush()
 
     def __draw_name(self, sec, neuron_name):
@@ -215,9 +234,10 @@ class NSWidget(QGLWidget):
         if self.look_draw_state:
             return
         self.updateGL()
-        if self.ifPause == True:
+        if self.is_pause == True:
             return
-        self.nrn.one_step()
+        if not self.sibernetic_mode:
+            self.nrn.one_step()
 
     def initializeGL(self):
         self.timer = QTimer(self)
@@ -283,7 +303,6 @@ class NSWidget(QGLWidget):
         :param e: event
         :return: none
         """
-
         self.old_x = e.x()
         self.old_y = e.y()
         if int(e.buttons()) == Qt.LeftButton:
@@ -320,7 +339,6 @@ class NSWidget(QGLWidget):
     def mouseReleaseEvent(self, e):
         self.is_transforming = False
 
-
     def wheelEvent(self, event):
         if event.delta() > 0:
             self.zoom_plus()
@@ -345,6 +363,6 @@ class NSWidget(QGLWidget):
         self.scale /=1.1
 
     def actionPause(self):
-        self.ifPause = not self.ifPause
+        self.is_pause = not self.is_pause
         #print self.ifPause
 

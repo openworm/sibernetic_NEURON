@@ -30,11 +30,8 @@
 # USE OR OTHER DEALINGS IN THE SOFTWARE.
 from __future__ import with_statement
 
-import sys
 import os.path
-
-
-from neuron import gui #TODO remove this than
+from neuron import gui
 from helper.myneuron import MyNeuron
 
 __author__ = 'Sergey Khayrulin'
@@ -44,8 +41,7 @@ v_pre = 'v_pre'
 v_post = 'v_post'
 i_syn = 'i_syn'
 t = 't'
-paramVec = [v]
-
+paramVec = [v, v_pre, v_post, i_syn]
 
 
 class NrnSimulator:
@@ -60,8 +56,6 @@ class NrnSimulator:
                 raise AttributeError(
                     u"File: {0:s} doesn't exist please check the path to the file or name of file".format(model_name))
             from neuron import h
-            #h.finitialize()
-            #h.load_file("stdrun.hoc")
             h.load_file("nrngui.hoc")
             h.load_file(model_name) # http://www.neuron.yale.edu/neuron/static/new_doc/programming/dynamiccode.html#
             h.init()
@@ -73,24 +67,40 @@ class NrnSimulator:
             if len(self.neuron_sections.keys()) == 0:
                 raise RuntimeError(u"In File: {0:s} with model no any neurons has been found. Please check the "
                                    u"the file".format(model_name))
-            #for name in self.neurons_names: #TODO put check that we haven't added this neuron yet in dictionary neurons
-            #    self.neurons[name] = MyNeuron(name, index=self.neurons_names.index(name))
+            # Initialization of segments and data arrays
             for n_name, val in self.neuron_sections.iteritems():
                 self.neurons[n_name] = MyNeuron(n_name, index=self.neuron_sections.keys().index(n_name))
                 self.neurons[n_name].init_sections(h, paramVec, self.neuron_sections[n_name])
-            # Initialization of segments and data arrays
-            #for k, val in self.neurons.iteritems():
-            #    val.init_sections(h, paramVec, )
-                #for sec in val.sections:
-                #    self.sections[]
             self.__index_sub_segments()
             self.simulation_speed = 1
+            #sibernetic part here we will store sections names from which we want to get info about voltage and so one
+            self.sibernetic_sections = {}
         else:
             raise ValueError("Name of file with Model shouldn't be empty")
 
     def __update_data(self):
         for k, val in self.neurons.iteritems():
             val.update_sec_data(paramVec)
+
+    def get_dt(self):
+        from neuron import h
+        return h.dt
+
+    def set_dt(self, dt):
+        if dt != 0.0:
+            from neuron import h
+            h.dt = dt
+
+    def gen_sib_sec_list(self, s_sections=[]):
+        if len(s_sections) == 0:
+            return
+        for sec in s_sections:
+            for neuron in self.neurons.values():
+                if sec in neuron.sections.keys():
+                    neuron.selected = True
+                    neuron.sections[sec].selected = True
+                    neuron.sections[sec].sub_sections[1].selected = True
+                    self.sibernetic_sections[neuron.name] = sec
 
     def one_step(self):
         """
@@ -105,6 +115,11 @@ class NrnSimulator:
             #print 'Simulation is finished'
             #sys.exit(0)
             pass
+        result = []
+        for neuron_name, sec in self.sibernetic_sections.iteritems():
+            if sec in self.neurons[neuron_name].sections.keys():
+                result.append(self.neurons[neuron_name].get_voltage(sec))
+        return result
 
     def __find_next_layer(self, sections, first_iter):
         ret_sections = []
@@ -142,8 +157,6 @@ class NrnSimulator:
                 s.parent = h.SectionRef().parent
             sections_.append(s)
         while len(sections_) != 0:
-            #build list of cell from list of sections if section has no parent it should mean that this is soma section
-            #so this is start of section
             temp_sections = self.__find_next_layer(sections_, iteration == 0)
             if iteration == 0:
                 for i in xrange(len(temp_sections)):
