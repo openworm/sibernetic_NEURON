@@ -1,0 +1,21 @@
+repo: openworm/sibernetic_NEURON
+shortDescription: "Interface between Sibernetic and NEURON simulator"
+coordinator: skhayrulin@openworm.org
+documentation: "https://github.com/openworm/sibernetic_NEURON/blob/development/README.md"
+gitter: "http://gitter.im/openworm/sibernetic"
+keywords: 
+  - simulation
+  - NEURON
+  - particles
+  - worm body
+languages: 
+  - NEURON
+  - python
+members: 
+  - skhayrulin@openworm.org
+inputs: 
+  - openworm/sibernetic
+outputs: 
+  - openworm/sibernetic
+parent: 
+  - openworm/sibernetic
